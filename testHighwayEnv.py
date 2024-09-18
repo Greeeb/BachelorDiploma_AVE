@@ -1,17 +1,16 @@
 import gymnasium
 import highway_env  # required to build custom highway environment
-import random
-from matplotlib import pyplot as plt
+from highway_env.envs.common.observation import OccupancyGridObservation 
+from highway_env.envs.common.action import ContinuousAction
+
 from stable_baselines3 import SAC
 
-# Parameters to change in the environment configuration
-CONFIG_CHANGE = [
-    ("screen_width", 3000), 
-    ("screen_height", 750),
-    ("scaling", 25)]
+import random
+import numpy as np
+from matplotlib import pyplot as plt
 
 
-def setup_environment(config_change):
+def setup_environment():
     """
     This function sets up the environment also adjusting 
     the given configuration params to the given values
@@ -20,13 +19,29 @@ def setup_environment(config_change):
                          render_mode="rgb_array", 
                          config={
                              "action": {
-                                 "type": "ContinuousAction" # "DiscreteMetaAction" # 
-                             }
-                         })
+                                 "type": "ContinuousAction" # "DiscreteMetaAction" 
+                             },
+                             "observation": {
+                                 "type": "OccupancyGrid",
+                                 "vehicles_count": 15,
+                                 "features": ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"],
+                                 "features_range": {
+                                     "x": [-100, 100],
+                                     "y": [-100, 100],
+                                     "vx": [-20, 20],
+                                     "vy": [-20, 20]
+                                 },
+                                 "grid_size": [[-27.5, 27.5], [-27.5, 27.5]],
+                                 "grid_step": [5, 5],
+                                 "absolute": False
+                             },
+                             "screen_width": 2500, 
+                             "screen_height": 750,
+                             "scaling": 25
+                         }
+                     )
     env.reset()
-    for change in config_change:
-        env.unwrapped.config[change[0]] = change[1]
-    
+
     return env
 
 
@@ -43,26 +58,26 @@ def find_action(obs, reward, done, trucated, info):
     }
     returns index
     """
-    
-    
     return random.randint(0, 4)
 
 
 def main():
     # Setup the environment
-    env = setup_environment(config_change=CONFIG_CHANGE)
+    env = setup_environment()
     env.reset()
+    obs_class = OccupancyGridObservation(env=env)
+    act_class = ContinuousAction(env=env)
 
-    model = SAC("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=100, log_interval=10)
-    model.save("sac_pendulum")
+    # There are 3 policies: MlpPolicy, CnnPolicy, MultiInputPolicy
+    model = SAC("MlpPolicy", env, verbose=2)
+    model.learn(total_timesteps=1000, log_interval=4, progress_bar=True, tb_log_name="SAC")
+    model.save("sac_highway")
 
-    del model # remove to demonstrate saving and loading
+    # del model # remove to demonstrate saving and loading
+    # model = SAC.load("sac_highway")
 
-    model = SAC.load("sac_pendulum")
-
-
-    obs, reward, done, trucated, info = ([], 0, False, False, {})
+    # obs, reward, done, trucated, info = (np.zeros((5,5)), 0, False, False, {})
+    obs, info = env.reset()
     for _ in range(1000):
         # action = env.unwrapped.action_type.actions_indexes["IDLE"]
         # action = find_action(obs, reward, done, trucated, info)
@@ -74,7 +89,7 @@ def main():
         # Stopping the environment if collision occured 
         # or the object is out of bounds/time limit is reached
         if done or trucated:
-            bobs, info = env.reset()
+            obs, info = env.reset()
 
         env.render()
 
