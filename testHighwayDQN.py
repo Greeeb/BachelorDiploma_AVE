@@ -19,7 +19,7 @@ model = DQN('MlpPolicy', 'highway-fast-v0',
                 exploration_fraction=0.7,
                 verbose=1,
                 tensorboard_log='highway_dqn/')
-model.learn(int(4e3), progress_bar=True)
+# model.learn(int(4e3), progress_bar=True)
 
 model.save("model_dqn")
 
@@ -31,7 +31,7 @@ env = gym.make('highway-fast-v0',
                     "scaling": 25
                  }
              )
-for episode in range(10):
+for episode in range(100):
     (obs, info), done = env.reset(), False
     while not done:
         action, _ = model.predict(obs, deterministic=True)
