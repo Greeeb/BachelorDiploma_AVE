@@ -6,13 +6,16 @@ from stable_baselines3 import SAC, DQN
 
 gym.register_envs(highway_env)
 
+iterations = 50000
+
 env = gym.make('highway-fast-v0', 
                render_mode='rgb_array',
                config={
                     "screen_width": 2500, 
                     "screen_height": 750,
-                    "scaling": 25
-                 }
+                    "scaling": 25,
+                    "duration": 60
+                 },
              )
 
 model = DQN('MlpPolicy', env=env,
@@ -28,17 +31,18 @@ model = DQN('MlpPolicy', env=env,
                 exploration_fraction=0.3,
                 verbose=1,
                 tensorboard_log='highway_dqn/')
-model.learn(int(4e3), progress_bar=True)
+# model.learn(iterations, progress_bar=True)
+# model.save(f"model_dqn_{iterations}")
 
-model.save("model_dqn")
-
+model = DQN.load(f"model_dqn_{iterations}")
 
 for episode in range(100):
     (obs, info), done, truncated = env.reset(), False, False
     while not (done or truncated):
-        print(obs)
+        # print(obs)
         action, _ = model.predict(obs, deterministic=True)
-        print(action)
+        # print(action)
         obs, reward, done, truncated, info = env.step(int(action))
         
         env.render()
+    print("done - ", done, "truncated - ", truncated)
