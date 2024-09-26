@@ -9,31 +9,31 @@ import random
 import numpy as np
 from matplotlib import pyplot as plt
 
+iterations = int(50000)
 
 def setup_environment():
     """
     This function sets up the environment also adjusting 
     the given configuration params to the given values
     """
-    env = gymnasium.make("highway-v0", 
+    env = gymnasium.make("highway-fast-v0", 
                          render_mode="rgb_array", 
                          config={
                              "action": {
-                                 "type": "ContinuousAction" # "DiscreteMetaAction" 
+                                 "type": "ContinuousAction" # SAC works only with continuous actions
                              },
                              "observation": {
-                                 "type": "OccupancyGrid",
-                                 "vehicles_count": 15,
-                                 "features": ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"],
-                                 "features_range": {
-                                     "x": [-100, 100],
-                                     "y": [-100, 100],
-                                     "vx": [-20, 20],
-                                     "vy": [-20, 20]
-                                 },
-                                 "grid_size": [[-27.5, 27.5], [-27.5, 27.5]],
-                                 "grid_step": [5, 5],
-                                 "absolute": False
+                                "type": "Kinematics",
+                                "vehicles_count": 15,
+                                "features": ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"],
+                                "features_range": {
+                                    "x": [-100, 100],
+                                    "y": [-100, 100],
+                                    "vx": [-20, 20],
+                                    "vy": [-20, 20]
+                                },
+                                "absolute": False,
+                                "order": "sorted"
                              },
                              "screen_width": 2500, 
                              "screen_height": 750,
@@ -60,6 +60,17 @@ def find_action(obs, reward, done, trucated, info):
     """
     return random.randint(0, 4)
 
+def check_model(env, model):
+    for episode in range(100):
+        (obs, info), done, truncated = env.reset(), False, False
+        while not (done or truncated):
+            print(obs)
+            action, _ = model.predict(obs, deterministic=True)
+            print(action)
+            obs, reward, done, truncated, info = env.step(action)
+            
+            env.render()
+        print("done - ", done, "truncated - ", truncated)
 
 def main():
     # Setup the environment
@@ -69,29 +80,21 @@ def main():
     act_class = ContinuousAction(env=env)
 
     # There are 3 policies: MlpPolicy, CnnPolicy, MultiInputPolicy
-    model = SAC("MlpPolicy", env, verbose=2)
-    model.learn(total_timesteps=1000, log_interval=4, progress_bar=True, tb_log_name="SAC")
-    model.save("sac_highway")
+    model = SAC("MlpPolicy", env, 
+                verbose=1, 
+                tensorboard_log="highway_sac/",
+                learning_rate=5e-4,
+                batch_size=32,
+                buffer_size=15000,
+                gamma=0.8,
+                 )
+    # model.learn(total_timesteps=iterations, log_interval=4, progress_bar=True)
+    # model.save(f"model_sac_{iterations}")
 
     # del model # remove to demonstrate saving and loading
-    # model = SAC.load("sac_highway")
+    model = SAC.load(f"model_sac_{iterations}")
 
-    # obs, reward, done, trucated, info = (np.zeros((5,5)), 0, False, False, {})
-    obs, info = env.reset()
-    for _ in range(1000):
-        # action = env.unwrapped.action_type.actions_indexes["IDLE"]
-        # action = find_action(obs, reward, done, trucated, info)
-        action, _states = model.predict(obs, deterministic=True)
-        obs, reward, done, trucated, info = env.step(action=action)
-        
-        print(obs)
-        
-        # Stopping the environment if collision occured 
-        # or the object is out of bounds/time limit is reached
-        if done or trucated:
-            obs, info = env.reset()
-
-        env.render()
+    check_model(env, model)
 
 
     # # Matplotlib captures the last frame if it is needed

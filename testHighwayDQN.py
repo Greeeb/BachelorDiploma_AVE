@@ -8,13 +8,13 @@ gym.register_envs(highway_env)
 
 iterations = 50000
 
+# "merge-v0" 'highway-fast-v0'
 env = gym.make('highway-fast-v0', 
                render_mode='rgb_array',
                config={
                     "screen_width": 2500, 
                     "screen_height": 750,
-                    "scaling": 25,
-                    "duration": 60
+                    "scaling": 25
                  },
              )
 
@@ -28,13 +28,13 @@ model = DQN('MlpPolicy', env=env,
                 train_freq=1,
                 gradient_steps=1,
                 target_update_interval=50,
-                exploration_fraction=0.3,
+                exploration_fraction=0.7,
                 verbose=1,
                 tensorboard_log='highway_dqn/')
 # model.learn(iterations, progress_bar=True)
-# model.save(f"model_dqn_{iterations}")
+# model.save(f"model_dqn_{iterations} expl 70")
 
-model = DQN.load(f"model_dqn_{iterations}")
+model = DQN.load(f"model_dqn_{iterations}_explore_70%")
 
 for episode in range(100):
     (obs, info), done, truncated = env.reset(), False, False
