@@ -88,6 +88,7 @@ def main():
                 buffer_size=15000,
                 gamma=0.8,
                  )
+    print(model.policy)
     # model.learn(total_timesteps=iterations, log_interval=4, progress_bar=True)
     # model.save(f"model_sac_{iterations}")
 
