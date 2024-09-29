@@ -9,7 +9,7 @@ import random
 import numpy as np
 from matplotlib import pyplot as plt
 
-iterations = int(50000)
+iterations = int(100000)
 
 def setup_environment():
     """
