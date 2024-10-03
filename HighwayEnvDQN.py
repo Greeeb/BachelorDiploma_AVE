@@ -30,7 +30,7 @@ model = DQN('MlpPolicy', env=env,
                 target_update_interval=50,
                 exploration_fraction=0.7,
                 verbose=1,
-                tensorboard_log='highway_dqn/')
+                tensorboard_log='logs/highway_dqn/')
 # model.learn(iterations, progress_bar=True)
 # model.save(f"model_dqn_{iterations} expl 70")
 

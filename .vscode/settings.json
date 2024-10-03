@@ -1,0 +1,6 @@
+{
+    "python.autoComplete.extraPaths": [
+        "./BachelorDiploma_AVE/rlkit",
+        
+    ]
+}
