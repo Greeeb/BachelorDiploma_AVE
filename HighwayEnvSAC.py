@@ -124,17 +124,17 @@ def main():
     # Number of iterations while training
     iterations = int(20000)
 
-    # Train the model
-    model.learn(total_timesteps=iterations, log_interval=4, progress_bar=True)
-    # Save the model into ./models
-    model.save(find_model_path(iter=iterations))
+    # # Train the model
+    # model.learn(total_timesteps=iterations, log_interval=4, progress_bar=True)
+    # # Save the model into ./models
+    # model.save(find_model_path(iter=iterations))
 
 
-    # # Load the existing model from ./models folder
-    # # Add copy_num=int if you need to launch particular copy
-    # model_path = find_model_path(iter=iterations, last=True, copy_num=None)
-    # model = SAC.load(model_path)  
-    # print(f"Model is loaded from: {model_path}")
+    # Load the existing model from ./models folder
+    # Add copy_num=int if you need to launch particular copy
+    model_path = find_model_path(iter=iterations, last=True, copy_num=None)
+    model = SAC.load(model_path)  
+    print(f"Model is loaded from: {model_path}")
 
 
     check_model(env, model)
