@@ -4,7 +4,7 @@ from highway_env.envs.common.observation import OccupancyGridObservation
 from highway_env.envs.common.action import ContinuousAction
 
 from rlkit.normalized_box_env import NormalizedBoxEnv
-
+from Functions import *
 
 from stable_baselines3 import SAC
 
@@ -73,33 +73,6 @@ def check_model(env, model):
             env.render()
         print("done - ", done, "truncated - ", truncated)
 
-def find_model_path(iter, last=False, copy_num=None):
-    """
-    The fucntion returns the path to the model:
-    1. To the particular model if copy_num is set to int.
-    2. To the last model if last set to True.
-    3. To the first not existing copy number for the purpose of saving the model.
-
-    :param iter: The learning iteratins count of the model.
-    :param last: True if you need to receive path to the last saved model for given iterations number.
-    :param copy_num: Set to int if you need to receive a particular copy of existing model.
-    """
-
-    copy = 0
-    model_filename = f"model_sac_{iter}({copy})"
-    models_path = os.path.join(os.curdir, "models")
-
-    if copy_num != None:
-        copy = copy_num
-        return os.path.join(models_path, f"model_sac_{iter}({copy})")
-
-    while f"model_sac_{iter}({copy}).zip" in os.listdir(models_path):
-        copy += 1 
-
-    if last:
-        copy -= 1
-
-    return os.path.join(models_path, f"model_sac_{iter}({copy})")
 
 def main():
     # Setup the environment
