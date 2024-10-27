@@ -1,0 +1,4 @@
+model_dqn_50000(0):
+Pure Highway 
+
+model_dqn_50000(1):

@@ -35,8 +35,6 @@ def results_path(model_path=find_model_path(iter=50000, last=True, copy_num=None
     """
     The function returns the path to the renders folder in saveResults:
     """
-    index = 0
-    general_path = os.path.join(os.curdir, "saveResults")
 
     folder_name = model_path.replace(str(os.path.join(os.curdir, "models")), "")
     folder_path = os.path.join(os.curdir, "saveResults" + folder_name)
@@ -88,14 +86,20 @@ class Results():
             "truncateds": self.truncateds,
             "times": self.times}
         
+        self.path = None
+        
     def __str__(self):
-        avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
+        self.return_average()
+        return f"Number of episodes: {len(self.dones)-2}\nAvg rewards: {self.avg_rewards}\nDones: {list(self.dones[2:]).count([1])}/{len(self.dones)-2}\nTruncateds: {list(self.truncateds[2:]).count([1])}/{len(self.truncateds)-2}\nAvg Time: {self.avg_times}"
+
+    def return_average(self):
+        self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
                        "collision_reward": statistics.mean([reward[0]["collision_reward"] for reward in self.rewards[2:]]),
                        "right_lane_reward": statistics.mean([reward[0]["right_lane_reward"] for reward in self.rewards[2:]]),
                        "high_speed_reward": statistics.mean([reward[0]["high_speed_reward"] for reward in self.rewards[2:]]),
                        "on_road_reward": statistics.mean([reward[0]["on_road_reward"] for reward in self.rewards[2:]])}
-        avg_time = statistics.mean([i[0] for i in self.times[2:]])
-        return f"Number of episodes: {len(self.dones)-2}\nAvg rewards: {avg_rewards}\nDones: {list(self.dones[2:]).count([1])}/{len(self.dones)-2}\nTruncateds: {list(self.truncateds[2:]).count([1])}/{len(self.truncateds)-2}\nAvg Time: {avg_time}"
+        self.avg_times = statistics.mean([i[0] for i in self.times[2:]])
+        
 
     def append(self, data):
         """
@@ -121,14 +125,16 @@ class Results():
         for var in self.results_dict.keys():
             np.save(os.path.join(results_path(), f"{var}"), self.results_dict[var])
 
-    def load(self):
-        path_to_results = results_path()
-        files = os.listdir(path_to_results)
-        self.dones = np.load(os.path.join(path_to_results, files[2]), allow_pickle=True)
-        self.renders = np.load(os.path.join(path_to_results, files[0]), allow_pickle=True)
-        self.rewards = np.load(os.path.join(path_to_results, files[4]), allow_pickle=True)
-        self.times = np.load(os.path.join(path_to_results, files[3]), allow_pickle=True)
-        self.truncateds = np.load(os.path.join(path_to_results, files[1]), allow_pickle=True)
+    def load(self, model_path=find_model_path(iter=50000, last=True, copy_num=None, model_type="dqn")):
+        self.path = results_path(model_path)
+        files = os.listdir(self.path)
+        self.dones = np.load(os.path.join(self.path, files[2]), allow_pickle=True)
+        self.renders = np.load(os.path.join(self.path, files[0]), allow_pickle=True)
+        self.rewards = np.load(os.path.join(self.path, files[4]), allow_pickle=True)
+        self.times = np.load(os.path.join(self.path, files[3]), allow_pickle=True)
+        self.truncateds = np.load(os.path.join(self.path, files[1]), allow_pickle=True)
+        
+        self.return_average()
               
     
 
