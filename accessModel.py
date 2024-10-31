@@ -12,10 +12,10 @@ iterations = 50000
 def main():
 
     # Setting up the models
-    env = setup_highway_env()
+    env = setup_merge_env()
 
     # Loading the model
-    model_path = find_model_path(iter=iterations, last=True, copy_num=None, model_type="dqn")
+    model_path = find_model_path(iter=iterations, last=True, copy_num=1, model_type="dqn")
     model = DQN.load(model_path)
 
     renders_path = results_path(model_path)
@@ -23,16 +23,24 @@ def main():
     # Initialise results class
     results = Results()
 
-    for episode in tqdm.tqdm(range(10)):
+    for episode in tqdm.tqdm(range(100)):
         # Resetting values for every episode 
         (obs, info), done, truncated = env.reset(), False, False
+        # episode_rewards = {
+        #     'general_reward': 0,
+        #     'collision_reward': 0,
+        #     'right_lane_reward': 0,
+        #     'high_speed_reward': 0,
+        #     'on_road_reward': 0}
         episode_rewards = {
-            'general_reward': 0,
-            'collision_reward': 0,
-            'right_lane_reward': 0,
-            'high_speed_reward': 0,
-            'on_road_reward': 0}
-        
+            "general_reward": 0,
+            "collision_reward": 0,
+            "right_lane_reward": 0,
+            "high_speed_reward": 0,
+            "lane_change_reward": 0,
+            "merging_speed_reward": 0
+        }
+
         start_time = time.time()    
         while not (done or truncated):
             action, _ = model.predict(obs, deterministic=True)

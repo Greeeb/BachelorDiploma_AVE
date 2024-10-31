@@ -1,0 +1,7 @@
+model_dqn_50000(0):
+Trained: Highway 
+Tested: Highway
+
+model_dqn_50000(1):
+Trained: Highway
+Tested: Merge

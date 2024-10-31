@@ -106,7 +106,7 @@ class Results():
         Appends the data to be tracked.
         :param data: should be in order [renders, rewards, dones, truncateds, times]
         """
-        self.renders = np.append(self.renders, np.array(data[0]).reshape(1,750,2500,3), axis=0)
+        # self.renders = np.append(self.renders, np.array(data[0]).reshape(1,750,2500,3), axis=0)
         self.rewards = np.append(self.rewards,np.array(data[1]).reshape((1,1)), axis=0)
         self.dones = np.append(self.dones,np.array(data[2]).reshape((1,1)), axis=0)
         self.truncateds = np.append(self.truncateds,np.array(data[3]).reshape((1,1)), axis=0)

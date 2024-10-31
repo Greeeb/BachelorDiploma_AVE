@@ -49,8 +49,7 @@ def main():
     truncateds = [len(results_highway.truncateds)-2, len(results_merge.truncateds)-2]
 
     # Combine all the average times into one list
-    avg_times = [results_highway.avg_times, 
-                 results_merge.avg_times]
+    avg_times = [results_highway.avg_times, results_merge.avg_times]
 
 
     # Plot the data

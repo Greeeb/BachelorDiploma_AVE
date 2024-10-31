@@ -11,7 +11,6 @@ model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=100, # make sur
                 policy_kwargs=dict(net_arch=[256, 256]),
                 learning_rate=5e-4,
                 buffer_size=15000,
-                learning_starts=100,
                 batch_size=32,
                 gamma=0.8,
                 train_freq=1,
