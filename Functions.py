@@ -48,7 +48,7 @@ def results_path(model_path=find_model_path(iter=50000, last=True, copy_num=None
 
 
 def setup_highway_env():
-    return setup_env("highway-v0")
+    return setup_env("highway-fast-v0")
 
 
 def setup_merge_env():
