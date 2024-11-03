@@ -43,10 +43,10 @@ def main():
         avg_rewards[key].append(results_merge.avg_rewards[key])
 
     # Combine dones into one list
-    dones = [len(results_highway.dones)-2, len(results_merge.dones)-2]
+    dones = [results_highway.dones.sum(), results_merge.dones.sum()]
 
     # Combine truncateds into one list
-    truncateds = [len(results_highway.truncateds)-2, len(results_merge.truncateds)-2]
+    truncateds = [results_highway.truncateds.sum(), results_merge.truncateds.sum()]
 
     # Combine all the average times into one list
     avg_times = [results_highway.avg_times, results_merge.avg_times]

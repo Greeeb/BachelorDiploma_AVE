@@ -77,6 +77,7 @@ class Results():
         # Initialise all the tracking variables
         self.renders = np.zeros((1,750,2500,3))
         self.rewards, self.dones, self.truncateds, self.times = (np.array([[0]]) for _ in range(4))
+        self.criticality = []
 
         # Dictionary of all variables to be tracked
         self.results_dict = {
@@ -84,15 +85,14 @@ class Results():
             "rewards": self.rewards, 
             "dones": self.dones, 
             "truncateds": self.truncateds,
-            "times": self.times}
+            "times": self.times,
+            "criticality": self.criticality}
         
         self.path = None
-
-        print(os.path.join(str(results_path())+"_merge.zip"))
         
     def __str__(self):
         self.return_average()
-        return f"Number of episodes: {len(self.dones)-2}\nAvg rewards: {self.avg_rewards}\nDones: {list(self.dones[2:]).count([1])}/{len(self.dones)-2}\nTruncateds: {list(self.truncateds[2:]).count([1])}/{len(self.truncateds)-2}\nAvg Time: {self.avg_times}"
+        return f"Number of episodes: {len(self.dones)-1}\nAvg rewards: {self.avg_rewards}\nDones: {list(self.dones[2:]).count([1])}/{len(self.dones)-1}\nTruncateds: {list(self.truncateds[2:]).count([1])}/{len(self.truncateds)-1}\nAvg Time: {self.avg_times}\nQ values: {self.criticality}"
 
     def return_average(self):
         self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
@@ -112,24 +112,39 @@ class Results():
         self.rewards = np.append(self.rewards,np.array(data[1]).reshape((1,1)), axis=0)
         self.dones = np.append(self.dones,np.array(data[2]).reshape((1,1)), axis=0)
         self.truncateds = np.append(self.truncateds,np.array(data[3]).reshape((1,1)), axis=0)
-        self.times = np.append(self.times,np.array(data[4]).reshape((1,1)), axis=0)        
+        self.times = np.append(self.times,np.array(data[4]).reshape((1,1)), axis=0) 
+        self.criticality.append(data[5]) 
         
-    def save(self, merge=False):
+    def save(self, merge=False, copy_num=None):
         # Reinitialising dictionary of all variables to be tracked
         self.results_dict = {
             "renders": self.renders,
             "rewards": self.rewards, 
             "dones": self.dones, 
             "truncateds": self.truncateds,
-            "times": self.times}
+            "times": self.times,
+            "criticality": self.criticality}
+        
+        # Step 1: Determine the maximum length
+        max_length = max(len(episode) for episode in self.criticality)
+
+        # Step 2: Pad each array to the maximum length
+        padded_episodes = [
+            np.pad(episode, (0, max_length - len(episode)), mode='constant', constant_values=np.nan)
+            for episode in self.criticality
+        ]
+
+        # Step 3: Convert to a 2D NumPy array
+        self.results_dict["criticality"] = np.array(padded_episodes)
+
         
         # Saving the np array of all the last states(first array is zeroes)
         if merge:
             for var in self.results_dict.keys():
-                np.save(os.path.join(str(results_path())[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
+                np.save(os.path.join(str(results_path(find_model_path(iter=50000, last=True, copy_num=copy_num, model_type="dqn")))[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
         else:    
             for var in self.results_dict.keys():
-                np.save(os.path.join(results_path(), f"{var}"), self.results_dict[var])
+                np.save(os.path.join(results_path(find_model_path(iter=50000, last=True, copy_num=copy_num, model_type="dqn")), f"{var}"), self.results_dict[var])
 
     def load(self, model_path=find_model_path(iter=50000, last=True, copy_num=None, model_type="dqn")):
         self.path = results_path(model_path)
@@ -139,6 +154,7 @@ class Results():
         self.rewards = np.load(os.path.join(self.path, files[4]), allow_pickle=True)
         self.times = np.load(os.path.join(self.path, files[3]), allow_pickle=True)
         self.truncateds = np.load(os.path.join(self.path, files[1]), allow_pickle=True)
+        self.criticality = np.load(os.path.join(self.path, files[5]), allow_pickle=True)
         
         self.return_average()
               
