@@ -25,7 +25,7 @@ def main():
     results_merge = Results()
 
     # Load results from file in saveResults
-    model_path = find_model_path(iter=50000, last=True, copy_num=1, model_type="dqn") # TODO check the copy number
+    model_path = find_model_path(iter=50000, last=True, copy_num=2, model_type="dqn") # TODO check the copy number
     results_merge.load(model_path)
     print(results_merge)
 

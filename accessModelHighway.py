@@ -15,7 +15,7 @@ def main():
     env = setup_highway_env()
 
     # Loading the model
-    model_path = find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn")
+    model_path = find_model_path(iter=iterations, last=True, copy_num=2, model_type="dqn")
     model = DQN.load(model_path)
 
     renders_path = results_path(model_path)
