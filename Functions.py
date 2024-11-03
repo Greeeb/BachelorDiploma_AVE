@@ -137,7 +137,7 @@ class Results():
         # Step 3: Convert to a 2D NumPy array
         self.results_dict["criticality"] = np.array(padded_episodes)
 
-        
+
         # Saving the np array of all the last states(first array is zeroes)
         if merge:
             for var in self.results_dict.keys():
@@ -149,13 +149,13 @@ class Results():
     def load(self, model_path=find_model_path(iter=50000, last=True, copy_num=None, model_type="dqn")):
         self.path = results_path(model_path)
         files = os.listdir(self.path)
-        self.dones = np.load(os.path.join(self.path, files[2]), allow_pickle=True)
-        self.renders = np.load(os.path.join(self.path, files[0]), allow_pickle=True)
-        self.rewards = np.load(os.path.join(self.path, files[4]), allow_pickle=True)
-        self.times = np.load(os.path.join(self.path, files[3]), allow_pickle=True)
-        self.truncateds = np.load(os.path.join(self.path, files[1]), allow_pickle=True)
-        self.criticality = np.load(os.path.join(self.path, files[5]), allow_pickle=True)
-        
+        self.dones = np.load(os.path.join(self.path, files[3]), allow_pickle=True)
+        self.renders = np.load(os.path.join(self.path, files[1]), allow_pickle=True)
+        self.rewards = np.load(os.path.join(self.path, files[5]), allow_pickle=True)
+        self.times = np.load(os.path.join(self.path, files[4]), allow_pickle=True)
+        self.truncateds = np.load(os.path.join(self.path, files[2]), allow_pickle=True)
+        self.criticality = np.load(os.path.join(self.path, files[0]), allow_pickle=True)
+
         self.return_average()
               
     
