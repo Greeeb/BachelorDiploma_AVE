@@ -87,6 +87,8 @@ class Results():
             "times": self.times}
         
         self.path = None
+
+        print(os.path.join(str(results_path())+"_merge.zip"))
         
     def __str__(self):
         self.return_average()
@@ -112,7 +114,7 @@ class Results():
         self.truncateds = np.append(self.truncateds,np.array(data[3]).reshape((1,1)), axis=0)
         self.times = np.append(self.times,np.array(data[4]).reshape((1,1)), axis=0)        
         
-    def save(self):
+    def save(self, merge=False):
         # Reinitialising dictionary of all variables to be tracked
         self.results_dict = {
             "renders": self.renders,
@@ -122,8 +124,12 @@ class Results():
             "times": self.times}
         
         # Saving the np array of all the last states(first array is zeroes)
-        for var in self.results_dict.keys():
-            np.save(os.path.join(results_path(), f"{var}"), self.results_dict[var])
+        if merge:
+            for var in self.results_dict.keys():
+                np.save(os.path.join(str(results_path())[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
+        else:    
+            for var in self.results_dict.keys():
+                np.save(os.path.join(results_path(), f"{var}"), self.results_dict[var])
 
     def load(self, model_path=find_model_path(iter=50000, last=True, copy_num=None, model_type="dqn")):
         self.path = results_path(model_path)

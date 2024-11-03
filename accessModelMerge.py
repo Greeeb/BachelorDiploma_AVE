@@ -61,7 +61,7 @@ def main():
         results.append([np.array(render_last_state), episode_rewards, done, truncated, episode_time])
 
     # Save results
-    results.save()
+    results.save(merge=True)
 
 
 if __name__=="__main__":
