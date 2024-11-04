@@ -16,7 +16,7 @@ def main():
 
     # Loading the model
     model_path = find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn")
-    model = DQN.load(model_path, env=env)
+    model = DQN.load(model_path, env=env, device="cuda:1")
 
     model.learn(iterations, progress_bar=True)
     model.save(find_model_path(iter=iterations, last=True, copy_num=2, model_type="dqn"))

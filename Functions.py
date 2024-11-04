@@ -16,7 +16,7 @@ def find_model_path(iter=50000, last=False, copy_num=None, model_type="dqn"):
     """
 
     copy = 0
-    models_path = os.path.join(os.curdir, "models")
+    models_path = os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")
 
     if copy_num != None:
         copy = copy_num
@@ -36,14 +36,12 @@ def results_path(model_path=find_model_path(iter=50000, last=True, copy_num=None
     The function returns the path to the renders folder in saveResults:
     """
 
-    folder_name = model_path.replace(str(os.path.join(os.curdir, "models")), "")
-    folder_path = os.path.join(os.curdir, "saveResults" + folder_name)
+    folder_path = model_path.replace("models", "saveResults")
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         print("New folder for renders created:", folder_path)
     else:
         print("The folder for renders exists:", folder_path)   
-
     return folder_path
 
 
@@ -149,12 +147,13 @@ class Results():
     def load(self, model_path=find_model_path(iter=50000, last=True, copy_num=None, model_type="dqn")):
         self.path = results_path(model_path)
         files = os.listdir(self.path)
-        self.dones = np.load(os.path.join(self.path, files[3]), allow_pickle=True)
-        self.renders = np.load(os.path.join(self.path, files[1]), allow_pickle=True)
-        self.rewards = np.load(os.path.join(self.path, files[5]), allow_pickle=True)
-        self.times = np.load(os.path.join(self.path, files[4]), allow_pickle=True)
-        self.truncateds = np.load(os.path.join(self.path, files[2]), allow_pickle=True)
-        self.criticality = np.load(os.path.join(self.path, files[0]), allow_pickle=True)
+        print(files)
+        self.dones = np.load(os.path.join(self.path, 'dones.npy'), allow_pickle=True)
+        self.renders = np.load(os.path.join(self.path, 'renders.npy'), allow_pickle=True)
+        self.rewards = np.load(os.path.join(self.path, 'rewards.npy'), allow_pickle=True)
+        self.times = np.load(os.path.join(self.path, 'times.npy'), allow_pickle=True)
+        self.truncateds = np.load(os.path.join(self.path, 'truncateds.npy'), allow_pickle=True)
+        self.criticality = np.load(os.path.join(self.path, 'criticality.npy'), allow_pickle=True)
 
         self.return_average()
               
