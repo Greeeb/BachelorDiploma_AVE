@@ -27,7 +27,7 @@ def main(copy):
                 train_freq=1,
                 gradient_steps=1,
                 target_update_interval=500,
-                device="cuda:1"
+                device="cuda:0"
     ).load(model_path, env=env)
     
     # Initialise results class
