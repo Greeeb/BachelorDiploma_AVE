@@ -1,5 +1,6 @@
 import os, gymnasium, highway_env, statistics
 import numpy as np
+from PIL import Image
 
 iterations = 100000
 
@@ -77,6 +78,7 @@ class Results():
         self.renders = np.zeros((1,750,2500,3))
         self.rewards, self.dones, self.truncateds, self.times = (np.array([[0]]) for _ in range(4))
         self.criticality = []
+        self.peak_renderings = []
 
         # Dictionary of all variables to be tracked
         self.results_dict = {
@@ -85,7 +87,8 @@ class Results():
             "dones": self.dones, 
             "truncateds": self.truncateds,
             "times": self.times,
-            "criticality": self.criticality}
+            "criticality": self.criticality,
+            "peak_renderings": self.peak_renderings}
         
         self.path = None
         
@@ -105,14 +108,15 @@ class Results():
     def append(self, data):
         """
         Appends the data to be tracked.
-        :param data: should be in order [renders, rewards, dones, truncateds, times]
+        :param data: should be in order [renders, rewards, dones, truncateds, times, criticality, peak_renderings]
         """
         # self.renders = np.append(self.renders, np.array(data[0]).reshape(1,750,2500,3), axis=0)
         self.rewards = np.append(self.rewards,np.array(data[1]).reshape((1,1)), axis=0)
         self.dones = np.append(self.dones,np.array(data[2]).reshape((1,1)), axis=0)
         self.truncateds = np.append(self.truncateds,np.array(data[3]).reshape((1,1)), axis=0)
         self.times = np.append(self.times,np.array(data[4]).reshape((1,1)), axis=0) 
-        self.criticality.append(data[5]) 
+        self.criticality.append(data[5])
+        self.peak_renderings.append(data[6])
         
     def save(self, merge=False, copy_num=None):
         # Reinitialising dictionary of all variables to be tracked
@@ -123,6 +127,8 @@ class Results():
             "truncateds": self.truncateds,
             "times": self.times,
             "criticality": self.criticality}
+        
+        print(self.peak_renderings)
         
         # Step 1: Determine the maximum length
         max_length = max(len(episode) for episode in self.criticality)
@@ -136,7 +142,6 @@ class Results():
         # Step 3: Convert to a 2D NumPy array
         self.results_dict["criticality"] = np.array(padded_episodes)
 
-
         # Saving the np array of all the last states(first array is zeroes)
         if merge:
             for var in self.results_dict.keys():
@@ -145,6 +150,28 @@ class Results():
             for var in self.results_dict.keys():
                 np.save(os.path.join(results_path(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")), f"{var}"), self.results_dict[var])
 
+        # Prepare to save peak renderings in a structured directory
+        model_name = os.path.basename(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn"))
+        render_dir = os.path.join("criticality_renderings", model_name)
+        
+        if not os.path.exists(render_dir):
+            os.makedirs(render_dir)
+
+        # Save each episode's peak renderings in its own folder
+        for episode_idx, episode_renderings in enumerate(self.peak_renderings):
+            episode_dir = os.path.join(render_dir, f"episode_{episode_idx}")
+            if not os.path.exists(episode_dir):
+                os.makedirs(episode_dir)
+
+            # Save each rendering in the episode's directory, using the timestamp as filename
+            for timestamp, rendering in episode_renderings:
+                filename = f"{timestamp:.2f}.png"  # Save as PNG
+                file_path = os.path.join(episode_dir, filename)
+                
+                # Convert numpy array to image and save as PNG
+                image = Image.fromarray((rendering * 255).astype(np.uint8))  # Assuming rendering is in [0,1] range
+                image.save(file_path)
+        
     def load(self, model_path=find_model_path(iter=iterations, last=True, copy_num=None, model_type="dqn")):
         self.path = results_path(model_path)
         files = os.listdir(self.path)
