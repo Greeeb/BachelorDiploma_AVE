@@ -1,8 +1,9 @@
 import os, gymnasium, highway_env, statistics
 import numpy as np
 
+iterations = 100000
 
-def find_model_path(iter=50000, last=False, copy_num=None, model_type="dqn"):
+def find_model_path(iter=iterations, last=False, copy_num=None, model_type="dqn"):
     """
     The function returns the path to the model:
     1. To the particular model if copy_num is set to int.
@@ -31,7 +32,7 @@ def find_model_path(iter=50000, last=False, copy_num=None, model_type="dqn"):
     return os.path.join(models_path, f"model_{model_type}_{iter}({copy})")
 
 
-def results_path(model_path=find_model_path(iter=50000, last=True, copy_num=None, model_type="dqn")):
+def results_path(model_path=find_model_path(iter=iterations, last=True, copy_num=None, model_type="dqn")):
     """
     The function returns the path to the renders folder in saveResults:
     """
@@ -58,7 +59,7 @@ def setup_env(env_name):
     This function sets up the environment also adjusting 
     the given configuration params to the given values
     """
-    env = gymnasium.make(env_name, 
+    env = gymnasium.make(env_name,
                          render_mode="rgb_array", 
                          config={
                             "screen_width": 2500, 
@@ -90,7 +91,7 @@ class Results():
         
     def __str__(self):
         self.return_average()
-        return f"Number of episodes: {len(self.dones)-1}\nAvg rewards: {self.avg_rewards}\nDones: {list(self.dones[2:]).count([1])}/{len(self.dones)-1}\nTruncateds: {list(self.truncateds[2:]).count([1])}/{len(self.truncateds)-1}\nAvg Time: {self.avg_times}\nQ values: {self.criticality}"
+        return f"Number of episodes: {len(self.dones)-1}\nAvg rewards: {self.avg_rewards}\nDones: {list(self.dones[2:]).count([1])}/{len(self.dones)-1}\nTruncateds: {list(self.truncateds[2:]).count([1])}/{len(self.truncateds)-1}\nAvg Time: {self.avg_times}\nCriticalities: {self.criticality}"
 
     def return_average(self):
         self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
@@ -139,12 +140,12 @@ class Results():
         # Saving the np array of all the last states(first array is zeroes)
         if merge:
             for var in self.results_dict.keys():
-                np.save(os.path.join(str(results_path(find_model_path(iter=50000, last=True, copy_num=copy_num, model_type="dqn")))[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
+                np.save(os.path.join(str(results_path(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")))[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
         else:    
             for var in self.results_dict.keys():
-                np.save(os.path.join(results_path(find_model_path(iter=50000, last=True, copy_num=copy_num, model_type="dqn")), f"{var}"), self.results_dict[var])
+                np.save(os.path.join(results_path(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")), f"{var}"), self.results_dict[var])
 
-    def load(self, model_path=find_model_path(iter=50000, last=True, copy_num=None, model_type="dqn")):
+    def load(self, model_path=find_model_path(iter=iterations, last=True, copy_num=None, model_type="dqn")):
         self.path = results_path(model_path)
         files = os.listdir(self.path)
         print(files)

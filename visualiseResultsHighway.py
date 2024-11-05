@@ -3,8 +3,9 @@ from Functions import *
 from matplotlib import pyplot as plt
 
 import numpy as np
+import seaborn as sns
 
-iterations = 50000
+iterations = 100000
 
 
 def main():
@@ -14,22 +15,22 @@ def main():
     results_highway = Results()
 
     # Load results from file in saveResults
-    model_path = find_model_path(iter=50000, last=True, copy_num=0, model_type="dqn") # TODO check the copy number
+    model_path = find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn") # TODO check the copy number
     results_highway.load(model_path)
     print(results_highway)
 
-    model_names.append(model_path.replace(str(os.path.join(os.curdir, "models")), ""))
+    model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
 
 
     # Initialise results class for the second Merge model
     results_merge = Results()
 
     # Load results from file in saveResults
-    model_path = find_model_path(iter=50000, last=True, copy_num=2, model_type="dqn") # TODO check the copy number
+    model_path = find_model_path(iter=iterations, last=True, copy_num=2, model_type="dqn") # TODO check the copy number
     results_merge.load(model_path)
     print(results_merge)
 
-    model_names.append(model_path.replace(str(os.path.join(os.curdir, "models")), ""))
+    model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
 
 
     avg_rewards = { "general_reward": [],
@@ -51,7 +52,7 @@ def main():
     # Combine all the average times into one list
     avg_times = [results_highway.avg_times, results_merge.avg_times]
 
-
+    print(results_highway.criticality)
     # Plot the data
 
     # 1. Bar chart for average rewards per model with values on top
@@ -116,6 +117,45 @@ def main():
     plt.tight_layout()
     plt.savefig('Dones-Truncateds.png')
 
+    
+    # Load the data
+    model1_data = results_highway.criticality
+    model2_data = results_merge.criticality
+
+    # 1. Line Plot with Subplots for first 10 episodes (ignoring NaN values)
+    fig, axes = plt.subplots(2, 5, figsize=(18, 6))
+    for i, ax in enumerate(axes.flat):
+        # Use np.ma.masked_invalid() to ignore NaN values when plotting
+        ax.plot(np.ma.masked_invalid(model1_data[i]), label='Model 1', color='blue')
+        ax.plot(np.ma.masked_invalid(model2_data[i]), label='Model 2', color='red')
+        ax.set_title(f'Episode {i+1}')
+        ax.legend()
+    plt.tight_layout()
+    plt.savefig("1.png")
+
+    # 2. Box Plot for Episode Comparison (ignoring NaNs in average calculation)
+    avg_criticalities_model1 = np.nanmean(model1_data, axis=1)  # Mean criticality ignoring NaNs for Model 1
+    avg_criticalities_model2 = np.nanmean(model2_data, axis=1)  # Mean criticality ignoring NaNs for Model 2
+
+    plt.figure(figsize=(12, 6))
+    plt.boxplot([avg_criticalities_model1, avg_criticalities_model2], labels=['Model 1', 'Model 2'])
+    plt.title("Criticality Distribution Across All Episodes")
+    plt.ylabel("Average Criticality")
+    plt.savefig("2.png")
+
+    # 3. Heatmap for Step-wise Comparison (e.g., for first 10 episodes, ignoring NaNs)
+    plt.figure(figsize=(14, 6))
+    sns.heatmap(np.nan_to_num(model1_data[:10]), cmap='Blues', cbar=True)
+    plt.title("Model 1 Criticality Heatmap (first 10 episodes)")
+    plt.xlabel("Steps")
+    plt.ylabel("Episodes")
+    plt.savefig("3.png")
+
+    sns.heatmap(np.nan_to_num(model2_data[:10]), cmap='Reds', cbar=True)
+    plt.title("Model 2 Criticality Heatmap (first 10 episodes)")
+    plt.xlabel("Steps")
+    plt.ylabel("Episodes")
+    plt.savefig("4.png")
     
 
 

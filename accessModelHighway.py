@@ -7,20 +7,29 @@ from Functions import *
 from stable_baselines3 import DQN
 
 # TODO: Always check the iterations 
-iterations = 50000
+iterations = 100000
 seed = 200
-copy_num = 2
-episodes = 100
+copy_num = 0
+episodes = 1000
 
-def main():
-
+def main(copy):
+    copy_num = copy
     # Setting up the models
     env = setup_highway_env()
 
     # Loading the model
     model_path = find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")
-    model = DQN.load(model_path)
-
+    model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=100, # make sure to keep seed same
+                policy_kwargs=dict(net_arch=[256, 256]),
+                learning_rate=5e-4,
+                batch_size=32,
+                gamma=0.8,
+                train_freq=1,
+                gradient_steps=1,
+                target_update_interval=500,
+                device="cuda:1"
+    ).load(model_path, env=env)
+    
     # Initialise results class
     results = Results()
 
@@ -40,7 +49,7 @@ def main():
         while not (done or truncated):
             action, _ = model.predict(obs, deterministic=True)
             obs, reward, done, truncated, info = env.step(int(action))
-            q_value = model.q_net(torch.tensor(obs, dtype=torch.float32).flatten().unsqueeze(0)).tolist()[0]
+            q_value = model.q_net(torch.tensor(obs, dtype=torch.float32, device="cuda:0").flatten().unsqueeze(0)).tolist()[0]
             criticality.append(statistics.variance(q_value))  # finding the variance of the list of q values to get criticality
 
             # Keep track of all the rewards for the episode summing them
