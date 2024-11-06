@@ -28,7 +28,7 @@ def main(copy=copy_num):
                 train_freq=1,
                 gradient_steps=1,
                 target_update_interval=500,
-                device="cuda:0"
+                device="cuda:1"
     ).load(model_path, env=env)
     
     # Initialise results class
@@ -54,7 +54,8 @@ def main(copy=copy_num):
             obs, reward, done, truncated, info = env.step(int(action))
 
             # Calculate criticality
-            q_value = model.q_net(torch.tensor(obs, dtype=torch.float32, device="cuda:0").flatten().unsqueeze(0)).tolist()[0]
+            q_value = model.q_net(torch.tensor(obs, dtype=torch.float32).flatten().unsqueeze(0)).tolist()[0]
+                                               # , device="cuda:0").flatten().unsqueeze(0)).tolist()[0]
             criticality.append(statistics.variance(q_value))
 
             # Capture rendering and timestamp

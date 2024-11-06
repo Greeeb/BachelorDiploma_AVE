@@ -18,7 +18,11 @@ def find_model_path(iter=iterations, last=False, copy_num=None, model_type="dqn"
     """
 
     copy = 0
-    models_path = os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")
+    if os.path.abspath(os.curdir).endswith("BachelorDiploma_AVE"):
+        models_path = os.path.join(os.path.abspath(os.curdir), "models")
+        print("here")
+    else:
+        models_path = os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")
 
     if copy_num != None:
         copy = copy_num
