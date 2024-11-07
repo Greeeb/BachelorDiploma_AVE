@@ -7,16 +7,15 @@ from Functions import *
 from stable_baselines3 import DQN
 
 # TODO: Always check the iterations 
-iterations = 100000
+iterations = 20000
 
 def main():
 
     # Setting up the models
     env = setup_merge_env()
-    env.config["lanes_count"] = 4
 
     # Loading the model
-    model_path = find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn")
+    model_path = find_model_path(iter=100000, last=True, copy_num=0, model_type="dqn")
     model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=100, # make sure to keep seed same
                 policy_kwargs=dict(net_arch=[256, 256]),
                 learning_rate=5e-4,
@@ -29,7 +28,7 @@ def main():
     ).load(model_path, env=env)
 
     model.learn(iterations, progress_bar=True)
-    model.save(find_model_path(iter=iterations, last=True, copy_num=1, model_type="dqn"))
+    model.save(find_model_path(iter=100000, last=True, copy_num=3, model_type="dqn"))
 
 if __name__=="__main__":
     main()

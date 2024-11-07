@@ -6,17 +6,29 @@ models:
     Trained: Merge(2 lanes and merge lane)
 
     model_dqn_100000(2):
-    Trained: Highway_fast(0)->Merge(2 lanes and merge lane)
+    Trained: Highway_fast(0) 100000->Merge(2 lanes and merge lane) 100000
+
+    model_dqn_100000(3):
+    Trained: Highway_fast(0) 100000->Merge(2 lanes and merge lane) 20000
 
 
 savedResults folder:
-    model_dqn_100000(0): 
+    model_dqn_100000(0) H: 
     the model 0 tested on 1000 episodes Highway_fast
 
-    model_dqn_100000(1): 
+    model_dqn_100000(1) H: 
+    the model 1 tested on 1000 episodes Highway_fast
+
+    model_dqn_100000(2) H: 
+    the model 2 tested on 1000 episodes Highway_fast
+
+    model_dqn_100000(0) M: 
+    the model 0 tested on 1000 episodes Merge
+
+    model_dqn_100000(1) M: 
     the model 1 tested on 1000 episodes Merge
 
-    model_dqn_100000(2): 
-    the model 2 tested on 1000 episodes Highway_fast
+    model_dqn_100000(2) M: 
+    the model 2 tested on 1000 episodes Merge
 
 

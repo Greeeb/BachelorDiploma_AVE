@@ -14,18 +14,18 @@ def main():
     results_1 = Results()
 
     # Load results from file in saveResults
-    model_path = find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn")
+    model_path = find_model_path(iter=iterations, last=True, copy_num=1, model_type="dqn")
     results_1.load(model_path, merge=merge)
     model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
 
     # Initialise results class for the second Merge model
     results_2 = Results()
-    model_path = find_model_path(iter=iterations, last=True, copy_num=1, model_type="dqn")
+    model_path = find_model_path(iter=iterations, last=True, copy_num=2, model_type="dqn")
     results_2.load(model_path, merge=merge)
     model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
 
     # Define the reward types
-    reward_types = ["general_reward", "collision_reward", "right_lane_reward", "high_speed_reward", "on_road_reward"]
+    reward_types = ["general_reward", "collision_reward", "right_lane_reward", "high_speed_reward", "lane_change_reward", "merging_speed_reward"]
 
     # Bar chart for average rewards per model
     avg_rewards = {reward: [] for reward in reward_types}

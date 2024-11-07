@@ -10,7 +10,7 @@ from scipy.signal import find_peaks  # For detecting peaks
 # TODO: Always check the iterations 
 iterations = 100000
 seed = 200
-copy_num = 0
+copy_num = 3
 episodes = 1000
 
 def main(copy=copy_num):
