@@ -1,4 +1,4 @@
-import os, gymnasium, highway_env, statistics
+import os, gymnasium, highway_env, statistics, tqdm
 import numpy as np
 from PIL import Image
 
@@ -68,7 +68,8 @@ def setup_env(env_name):
                          config={
                             "screen_width": 2500, 
                             "screen_height": 750,
-                            "scaling": 25
+                            "scaling": 25,
+                            "lanes_count": 4
                          },
                      )
     env.reset()
@@ -99,12 +100,21 @@ class Results():
         self.return_average()
         return f"Number of episodes: {len(self.dones)-1}\nAvg rewards: {self.avg_rewards}\nDones: {list(self.dones[2:]).count([1])}/{len(self.dones)-1}\nTruncateds: {list(self.truncateds[2:]).count([1])}/{len(self.truncateds)-1}\nAvg Time: {self.avg_times}\nCriticalities: {self.criticality}"
 
-    def return_average(self):
-        self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
-                       "collision_reward": statistics.mean([reward[0]["collision_reward"] for reward in self.rewards[2:]]),
-                       "right_lane_reward": statistics.mean([reward[0]["right_lane_reward"] for reward in self.rewards[2:]]),
-                       "high_speed_reward": statistics.mean([reward[0]["high_speed_reward"] for reward in self.rewards[2:]]),
-                       "on_road_reward": statistics.mean([reward[0]["on_road_reward"] for reward in self.rewards[2:]])}
+    def return_average(self, merge=False):
+        if merge:
+            self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
+                        "collision_reward": statistics.mean([reward[0]["collision_reward"] for reward in self.rewards[2:]]),
+                        "right_lane_reward": statistics.mean([reward[0]["right_lane_reward"] for reward in self.rewards[2:]]),
+                        "high_speed_reward": statistics.mean([reward[0]["high_speed_reward"] for reward in self.rewards[2:]]),
+                        "lane_change_reward": statistics.mean([reward[0]["lane_change_reward"] for reward in self.rewards[2:]]),
+                        "merging_speed_reward": statistics.mean([reward[0]["merging_speed_reward"] for reward in self.rewards[2:]])}
+        else:
+            self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
+                        "collision_reward": statistics.mean([reward[0]["collision_reward"] for reward in self.rewards[2:]]),
+                        "right_lane_reward": statistics.mean([reward[0]["right_lane_reward"] for reward in self.rewards[2:]]),
+                        "high_speed_reward": statistics.mean([reward[0]["high_speed_reward"] for reward in self.rewards[2:]]),
+                        "on_road_reward": statistics.mean([reward[0]["on_road_reward"] for reward in self.rewards[2:]])}        
+        
         self.avg_times = statistics.mean([i[0] for i in self.times[2:]])
         
 
@@ -130,9 +140,7 @@ class Results():
             "truncateds": self.truncateds,
             "times": self.times,
             "criticality": self.criticality}
-        
-        print(self.peak_renderings)
-        
+                
         # Step 1: Determine the maximum length
         max_length = max(len(episode) for episode in self.criticality)
 
@@ -167,7 +175,7 @@ class Results():
                 os.makedirs(episode_dir)
 
             # Save each rendering in the episode's directory, using the timestamp as filename
-            for timestamp, rendering in episode_renderings:
+            for timestamp, rendering in tqdm.tqdm(episode_renderings):
                 filename = f"{timestamp:.2f}.png"  # Save as PNG
                 file_path = os.path.join(episode_dir, filename)
                 
@@ -175,7 +183,7 @@ class Results():
                 image = Image.fromarray((rendering * 255).astype(np.uint8))  # Assuming rendering is in [0,1] range
                 image.save(file_path)
         
-    def load(self, model_path=find_model_path(iter=iterations, last=True, copy_num=None, model_type="dqn")):
+    def load(self, model_path=find_model_path(iter=iterations, last=True, copy_num=None, model_type="dqn"), merge=False):
         self.path = results_path(model_path)
         files = os.listdir(self.path)
         print(files)
@@ -186,7 +194,7 @@ class Results():
         self.truncateds = np.load(os.path.join(self.path, 'truncateds.npy'), allow_pickle=True)
         self.criticality = np.load(os.path.join(self.path, 'criticality.npy'), allow_pickle=True)
 
-        self.return_average()
+        self.return_average(merge)
               
     
 

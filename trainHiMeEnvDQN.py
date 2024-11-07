@@ -13,6 +13,7 @@ def main():
 
     # Setting up the models
     env = setup_merge_env()
+    env.config["lanes_count"] = 4
 
     # Loading the model
     model_path = find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn")

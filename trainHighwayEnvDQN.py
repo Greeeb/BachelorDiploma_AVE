@@ -15,7 +15,7 @@ def main():
                     gamma=0.8,
                     train_freq=1,
                     gradient_steps=1,
-                    target_update_interval=50,
+                    target_update_interval=500,
                     device="cuda:1"
         )
 

@@ -5,6 +5,7 @@ from accessModelMerge import main as accessMerge
 
 # HiMe()
 # Merge()
-accessHighway(0)
-accessHighway(2)
+accessMerge(0)
+accessMerge(1)
+accessMerge(2)
 # accessMerge()
