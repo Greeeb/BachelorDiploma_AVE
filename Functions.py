@@ -169,13 +169,13 @@ class Results():
             os.makedirs(render_dir)
 
         # Save each episode's peak renderings in its own folder
-        for episode_idx, episode_renderings in enumerate(self.peak_renderings):
+        for episode_idx, episode_renderings in tqdm.tqdm(enumerate(self.peak_renderings))   :
             episode_dir = os.path.join(render_dir, f"episode_{episode_idx}")
             if not os.path.exists(episode_dir):
                 os.makedirs(episode_dir)
 
             # Save each rendering in the episode's directory, using the timestamp as filename
-            for timestamp, rendering in tqdm.tqdm(episode_renderings):
+            for timestamp, rendering in episode_renderings:
                 filename = f"{timestamp:.2f}.png"  # Save as PNG
                 file_path = os.path.join(episode_dir, filename)
                 
