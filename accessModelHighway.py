@@ -8,12 +8,13 @@ from stable_baselines3 import DQN
 from scipy.signal import find_peaks  # For detecting peaks
 
 # TODO: Always check the iterations 
-iterations = 100000
+iterations = 10000
 seed = 200
-copy_num = 0
-episodes = 10
+copy_num = 6
+episodes = 1000
+torch.cuda.set_device(1)
 
-def main(copy=copy_num):
+def main(iterations=iterations, copy=copy_num):
     copy_num = copy
     # Setting up the models
     env = setup_highway_env()
@@ -45,28 +46,31 @@ def main(copy=copy_num):
             'on_road_reward': 0
         }
         criticality = []
+        all_obs = []
         all_renderings = []  # Store all renderings to filter after the episode
         timestamps = []      # Store timestamps for each rendering
-        episode_start_time = time.time()    
+        episode_start_time = time.time()
 
         while not (done or truncated):
             action, _ = model.predict(obs, deterministic=True)
-            obs, reward, done, truncated, info = env.step(int(action))
-
+            obs_next, reward, done, truncated, info = env.step(int(action))
+            
             # Calculate criticality
-            q_value = model.q_net(torch.tensor(obs, dtype=torch.float32).flatten().unsqueeze(0)).tolist()[0]
-                                               # , device="cuda:0").flatten().unsqueeze(0)).tolist()[0]
+            q_value = model.q_net(torch.tensor(obs_next, dtype=torch.float32).to("cuda:1").flatten().unsqueeze(0)).tolist()[0]
             criticality.append(statistics.variance(q_value))
 
             # Capture rendering and timestamp
             step_index = len(criticality) - 1
             all_renderings.append(env.render())
+            all_obs.append(obs_next)
             timestamps.append(step_index)
 
             # Sum up rewards for the episode
             episode_rewards["general_reward"] += reward
             for key in info["rewards"].keys():
                 episode_rewards[key] += info["rewards"][key]
+                
+            obs = obs_next
 
         # Calculate episode duration
         episode_duration = time.time() - episode_start_time
@@ -74,7 +78,8 @@ def main(copy=copy_num):
         # After episode ends, find peaks in the criticality array
         peaks, _ = find_peaks(criticality)
         peak_renderings = [(timestamps[i], all_renderings[i]) for i in peaks]  # Keep only renderings at peak indices with timestamps
-
+        crit_obs = [all_obs[i] for i in peaks]
+        
         # Append episode data to Results, including peak renderings and episode duration
         results.append([
             np.array(all_renderings[-1]),  # Last state rendering
@@ -83,7 +88,8 @@ def main(copy=copy_num):
             truncated, 
             episode_duration,  # Episode duration is preserved here
             np.array(criticality), 
-            np.array(peak_renderings, dtype=object)  # Ensure compatibility with mixed timestamp-rendering tuples
+            np.array(peak_renderings, dtype=object),  # Ensure compatibility with mixed timestamp-rendering tuples
+            crit_obs
         ])
 
     # Save results

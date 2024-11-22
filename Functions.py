@@ -1,6 +1,10 @@
 import os, gymnasium, highway_env, statistics, tqdm
 import numpy as np
+import torch
+
 from PIL import Image
+from stable_baselines3.common.buffers import ReplayBuffer, ReplayBufferSamples, BaseBuffer
+
 
 iterations = 100000
 
@@ -79,20 +83,20 @@ def setup_env(env_name):
 class Results():
     def __init__(self):
         # Initialise all the tracking variables
-        self.renders = np.zeros((1,750,2500,3))
         self.rewards, self.dones, self.truncateds, self.times = (np.array([[0]]) for _ in range(4))
         self.criticality = []
         self.peak_renderings = []
+        self.crit_obs = []
 
         # Dictionary of all variables to be tracked
         self.results_dict = {
-            "renders": self.renders,
             "rewards": self.rewards, 
             "dones": self.dones, 
             "truncateds": self.truncateds,
             "times": self.times,
             "criticality": self.criticality,
-            "peak_renderings": self.peak_renderings}
+            "peak_renderings": self.peak_renderings,
+            "crit_obs": self.crit_obs}
         
         self.path = None
         
@@ -130,29 +134,59 @@ class Results():
         self.times = np.append(self.times,np.array(data[4]).reshape((1,1)), axis=0) 
         self.criticality.append(data[5])
         self.peak_renderings.append(data[6])
+        self.crit_obs.append(data[7])
         
     def save(self, merge=False, copy_num=None):
         # Reinitialising dictionary of all variables to be tracked
         self.results_dict = {
-            "renders": self.renders,
             "rewards": self.rewards, 
             "dones": self.dones, 
             "truncateds": self.truncateds,
             "times": self.times,
-            "criticality": self.criticality}
-                
+            "criticality": self.criticality,
+            "crit_obs": self.crit_obs}
+        
+        
         # Step 1: Determine the maximum length
         max_length = max(len(episode) for episode in self.criticality)
 
         # Step 2: Pad each array to the maximum length
-        padded_episodes = [
+        padded_criticality = [
             np.pad(episode, (0, max_length - len(episode)), mode='constant', constant_values=np.nan)
             for episode in self.criticality
         ]
-
+        crit_obs = []
+        for row in self.crit_obs:
+            crit_obs.extend(row)
+        
+        print(len(crit_obs))
+        
         # Step 3: Convert to a 2D NumPy array
-        self.results_dict["criticality"] = np.array(padded_episodes)
+        self.results_dict["criticality"] = np.array(padded_criticality)
+        self.results_dict["crit_obs"] = np.array(crit_obs)
+        
+        # # Prepare to save peak renderings in a structured directory
+        # model_name = os.path.basename(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn"))
+        # render_dir = os.path.join("criticality_renderings", model_name)
+        
+        # if not os.path.exists(render_dir):
+        #     os.makedirs(render_dir)
 
+        # # Save each episode's peak renderings in its own folder
+        # for episode_idx, episode_renderings in tqdm.tqdm(enumerate(self.peak_renderings))   :
+        #     episode_dir = os.path.join(render_dir, f"episode_{episode_idx}")
+        #     if not os.path.exists(episode_dir):
+        #         os.makedirs(episode_dir)
+
+        #     # Save each rendering in the episode's directory, using the timestamp as filename
+        #     for timestamp, rendering in episode_renderings:
+        #         filename = f"{timestamp:.2f}.png"  # Save as PNG
+        #         file_path = os.path.join(episode_dir, filename)
+                
+        #         # Convert numpy array to image and save as PNG
+        #         image = Image.fromarray((rendering * 255).astype(np.uint8))  # Assuming rendering is in [0,1] range
+        #         image.save(file_path)
+        
         # Saving the np array of all the last states(first array is zeroes)
         if merge:
             for var in self.results_dict.keys():
@@ -161,34 +195,16 @@ class Results():
             for var in self.results_dict.keys():
                 np.save(os.path.join(results_path(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")), f"{var}"), self.results_dict[var])
 
-        # Prepare to save peak renderings in a structured directory
-        model_name = os.path.basename(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn"))
-        render_dir = os.path.join("criticality_renderings", model_name)
         
-        if not os.path.exists(render_dir):
-            os.makedirs(render_dir)
-
-        # Save each episode's peak renderings in its own folder
-        for episode_idx, episode_renderings in tqdm.tqdm(enumerate(self.peak_renderings))   :
-            episode_dir = os.path.join(render_dir, f"episode_{episode_idx}")
-            if not os.path.exists(episode_dir):
-                os.makedirs(episode_dir)
-
-            # Save each rendering in the episode's directory, using the timestamp as filename
-            for timestamp, rendering in episode_renderings:
-                filename = f"{timestamp:.2f}.png"  # Save as PNG
-                file_path = os.path.join(episode_dir, filename)
-                
-                # Convert numpy array to image and save as PNG
-                image = Image.fromarray((rendering * 255).astype(np.uint8))  # Assuming rendering is in [0,1] range
-                image.save(file_path)
         
     def load(self, model_path=find_model_path(iter=iterations, last=True, copy_num=None, model_type="dqn"), merge=False):
-        self.path = results_path(model_path)
-        files = os.listdir(self.path)
-        print(files)
+        if "saveResults" not in str(model_path):
+            self.path = results_path(model_path)
+        else:
+            self.path = model_path
+            
         self.dones = np.load(os.path.join(self.path, 'dones.npy'), allow_pickle=True)
-        self.renders = np.load(os.path.join(self.path, 'renders.npy'), allow_pickle=True)
+        self.crit_obs = np.load(os.path.join(self.path, 'crit_obs.npy'), allow_pickle=True)
         self.rewards = np.load(os.path.join(self.path, 'rewards.npy'), allow_pickle=True)
         self.times = np.load(os.path.join(self.path, 'times.npy'), allow_pickle=True)
         self.truncateds = np.load(os.path.join(self.path, 'truncateds.npy'), allow_pickle=True)
@@ -196,7 +212,45 @@ class Results():
 
         self.return_average(merge)
               
-    
 
+class CustomReplayBuffer(ReplayBuffer):
+    def __init__(self, buffer_size, observation_space, action_space, device, n_envs, optimize_memory_usage):
+        super().__init__(buffer_size, observation_space, action_space, device)
+        self.stored_states = []
 
+    def add(self, obs, action, reward, next_obs, done):
+        """
+        Store the full transition (state, action, reward, next_state, done).
+        """
+        # Store the transition as a tuple (state, action, reward, next_state, done)
+        self.stored_states.append((obs, action, reward, next_obs, done))
 
+    def sample(self, batch_size: int):
+        # Ensure there are enough samples in the buffer
+        if len(self.stored_states) < batch_size:
+            batch_size = len(self.stored_states)
+
+        # Randomly sample indices
+        indices = np.random.choice(np.arange(1, len(self.stored_states)), batch_size)
+
+        # Convert sampled states to tensors
+        observations = torch.as_tensor(self.stored_states[indices], device=self.device)
+
+        # Create dummy actions, rewards, next_observations, and dones
+        actions = torch.zeros((batch_size, *self.action_space.shape), device=self.device)
+        rewards = torch.zeros((batch_size, 1), device=self.device)
+        next_observations = observations.clone()
+        dones = torch.zeros((batch_size, 1), device=self.device)
+
+        # Return the sampled data using _get_samples()
+        return self._get_samples(observations, actions, rewards, next_observations, dones)
+
+    def _get_samples(self, observations, actions, rewards, next_observations, dones):
+        # Return a named tuple expected by the DQN model
+        return ReplayBufferSamples(
+            observations=observations,
+            actions=actions,
+            rewards=rewards,
+            next_observations=next_observations,
+            dones=dones,
+        )

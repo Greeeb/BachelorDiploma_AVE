@@ -11,6 +11,10 @@ models:
     model_dqn_100000(3):
     Trained: Highway_fast(0) 100000->Merge(2 lanes and merge lane) 20000
 
+    model_dqn_10000(6):
+    Trained Highway_fast 1000 -> Highway_fast critical states 10000
+
+
 
 savedResults folder:
     model_dqn_100000(0) H: 
@@ -30,5 +34,9 @@ savedResults folder:
 
     model_dqn_100000(2) M: 
     the model 2 tested on 1000 episodes Merge
+
+    model_dqn_10000(6) H:
+    the model 6 tested on 1000 episodes Highway_fast
+    
 
 

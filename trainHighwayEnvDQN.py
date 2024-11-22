@@ -3,9 +3,9 @@ from stable_baselines3 import DQN
 from Functions import *
 
 
-iterations = 100000
+iterations = 1000
 
-def main():
+def main(iterations=iterations, copy_num=5):
     env = setup_highway_env()
 
     model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=100, # make sure to keep seed same
@@ -20,7 +20,7 @@ def main():
         )
 
     model.learn(iterations, progress_bar=True)
-    model.save(find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn"))
+    model.save(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn"))
 
 if __name__=="__main__":
     main()
