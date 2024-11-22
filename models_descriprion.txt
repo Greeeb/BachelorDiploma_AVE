@@ -14,6 +14,12 @@ models:
     model_dqn_10000(6):
     Trained Highway_fast 1000 -> Highway_fast critical states 10000
 
+    model_dqn_10000(7):
+    Trained Highway_fast 1000 -> Highway_fast critical states 6374
+
+    model_dqn_10000(8):
+    Trained Highway_fast 1000 -> Highway_fast critical states 6374 -> Highway_fast critical states 6374
+
 
 
 savedResults folder:

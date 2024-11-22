@@ -15,7 +15,7 @@ def main():
     results_1 = Results()
 
     # Load results from file in saveResults
-    model_path = find_model_path(iter=10000, last=True, copy_num=6, model_type="dqn")
+    model_path = find_model_path(iter=10000, last=True, copy_num=7, model_type="dqn")
     results_1.load(model_path, merge=merge)
     model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
 

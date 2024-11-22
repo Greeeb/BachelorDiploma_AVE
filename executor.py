@@ -16,6 +16,6 @@ import time, numpy
 # trainHi(100000, 0)
 # simple = time.time() - start
 
-accessHighway(10000, 6)
-accessHighway(100000, 0)
+accessHighway(10000, 7)
+accessHighway(10000, 8)
 
