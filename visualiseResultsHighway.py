@@ -119,22 +119,46 @@ def main():
     plt.tight_layout()
     plt.savefig("Reward_Comparison.png")
 
-    # Episode time comparison
+   # Episode time comparison
     episode_times_highway = results_1.times
     episode_times_merge = results_2.times
+
     avg_time_highway = np.mean(episode_times_highway)
     avg_time_merge = np.mean(episode_times_merge)
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(episode_times_highway[1:101], label="Model 1", color="blue")
-    plt.plot(episode_times_merge[1:101], label="Model 2", color="red")
-    plt.axhline(avg_time_highway, color="blue", linestyle="--", label=f"Model 1 Avg: {avg_time_highway:.2f}s")
-    plt.axhline(avg_time_merge, color="red", linestyle="--", label=f"Model 2 Avg: {avg_time_merge:.2f}s")
+    var_time_highway = np.var(episode_times_highway)
+    var_time_merge = np.var(episode_times_merge)
+
+    std_time_highway = np.std(episode_times_highway)
+    std_time_merge = np.std(episode_times_merge)
+
+    # Plotting
+    plt.figure(figsize=(12, 6))
+    plt.plot(episode_times_highway[1:101], label=model_names[0], color="blue")
+    plt.plot(episode_times_merge[1:101], label=model_names[1], color="red")
+    plt.axhline(avg_time_highway, color="blue", linestyle="--", label=f"{model_names[0]} Avg: {avg_time_highway:.2f}s")
+    plt.axhline(avg_time_merge, color="red", linestyle="--", label=f"{model_names[1]} Avg: {avg_time_merge:.2f}s")
     plt.xlabel("Episode")
     plt.ylabel("Time (seconds)")
     plt.title("Episode Time Comparison by Model")
     plt.legend()
-    plt.savefig("Episode_Times.png")
+
+    # Adding text to display variance and standard deviation
+    text = (
+        f"{model_names[0]}:\n"
+        f"Variance: {var_time_highway:.2f}\n"
+        f"Std Dev: {std_time_highway:.2f}\n\n"
+        f"{model_names[1]}:\n"
+        f"Variance: {var_time_merge:.2f}\n"
+        f"Std Dev: {std_time_merge:.2f}"
+    )
+
+    # Place text on the figure in an unused corner
+    plt.gcf().text(0.8, 0.15, text, fontsize=10, bbox=dict(facecolor="white", alpha=0.8))
+
+    plt.tight_layout()
+    plt.savefig("Episode_Times_with_Variance_Simple.png")
+    plt.show()
 
 if __name__=="__main__":
     main()
