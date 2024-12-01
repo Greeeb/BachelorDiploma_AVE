@@ -16,6 +16,12 @@ import time, numpy
 # trainHi(100000, 0)
 # simple = time.time() - start
 
-accessMerge(10000, 7)
-accessMerge(100000, 0)
+accessHighway(10000, 7, 1500, 1)
+accessHighway(100000, 0, 1500, 1)
+accessHighway(10000, 7, 1500, 2)
+accessHighway(100000, 0, 1500, 2)
+accessHighway(10000, 7, 1500, 3)
+accessHighway(100000, 0, 1500, 3)
+accessHighway(10000, 7, 1500, 4)
+accessHighway(100000, 0, 1500, 4)
 

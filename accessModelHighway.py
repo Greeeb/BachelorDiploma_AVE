@@ -12,16 +12,17 @@ iterations = 10000
 seed = 200
 copy_num = 6
 episodes = 1000
+seed = 200
 torch.cuda.set_device(1)
 
-def main(iterations=iterations, copy=copy_num):
+def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
     copy_num = copy
     # Setting up the models
     env = setup_highway_env()
 
     # Loading the model
     model_path = find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")
-    model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=100, # make sure to keep seed same
+    model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=seed, # make sure to keep seed same
                 policy_kwargs=dict(net_arch=[256, 256]),
                 learning_rate=5e-4,
                 batch_size=32,
@@ -93,7 +94,7 @@ def main(iterations=iterations, copy=copy_num):
         ])
 
     # Save results
-    results.save(copy_num=copy_num)
+    results.save(copy_num=save_copy)
 
 
 if __name__=="__main__":
