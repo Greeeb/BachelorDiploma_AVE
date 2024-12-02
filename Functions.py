@@ -136,7 +136,7 @@ class Results():
         self.peak_renderings.append(data[6])
         self.crit_obs.append(data[7])
         
-    def save(self, merge=False, copy_num=None):
+    def save(self, merge=False, copy_num=None, iter=iterations):
         # Reinitialising dictionary of all variables to be tracked
         self.results_dict = {
             "rewards": self.rewards, 
@@ -190,10 +190,10 @@ class Results():
         # Saving the np array of all the last states(first array is zeroes)
         if merge:
             for var in self.results_dict.keys():
-                np.save(os.path.join(str(results_path(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")))[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
+                np.save(os.path.join(str(results_path(find_model_path(iter=iter, last=True, copy_num=copy_num, model_type="dqn")))[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
         else:    
             for var in self.results_dict.keys():
-                np.save(os.path.join(results_path(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")), f"{var}"), self.results_dict[var])
+                np.save(os.path.join(results_path(find_model_path(iter=iter, last=True, copy_num=copy_num, model_type="dqn")), f"{var}"), self.results_dict[var])
 
         
         

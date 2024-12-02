@@ -16,12 +16,14 @@ import time, numpy
 # trainHi(100000, 0)
 # simple = time.time() - start
 
+accessHighway(10000, 7, 300, 0)
+accessHighway(100000, 0, 300, 0)
 accessHighway(10000, 7, 1500, 1)
 accessHighway(100000, 0, 1500, 1)
-accessHighway(10000, 7, 1500, 2)
-accessHighway(100000, 0, 1500, 2)
-accessHighway(10000, 7, 1500, 3)
-accessHighway(100000, 0, 1500, 3)
-accessHighway(10000, 7, 1500, 4)
-accessHighway(100000, 0, 1500, 4)
+accessHighway(10000, 7, 2600, 2)
+accessHighway(100000, 0, 2600, 2)
+accessHighway(10000, 7, 3700, 3)
+accessHighway(100000, 0, 3700, 3)
+accessHighway(10000, 7, 4800, 4)
+accessHighway(100000, 0, 4800, 4)
 

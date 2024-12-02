@@ -94,7 +94,7 @@ def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
         ])
 
     # Save results
-    results.save(copy_num=save_copy)
+    results.save(copy_num=save_copy, iter=iterations)
 
 
 if __name__=="__main__":

@@ -7,6 +7,7 @@ import seaborn as sns
 iterations = 100000
 merge = False
 compare = False
+copy_num=4
 
 def main():
     model_names = list()
@@ -15,13 +16,13 @@ def main():
     results_1 = Results()
 
     # Load results from file in saveResults
-    model_path = find_model_path(iter=10000, last=True, copy_num=7, model_type="dqn")
+    model_path = find_model_path(iter=10000, last=True, copy_num=copy_num, model_type="dqn")
     results_1.load(model_path, merge=merge)
     model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
 
     # Initialise results class for the second Merge model
     results_2 = Results()
-    model_path = find_model_path(iter=iterations, last=True, copy_num=0, model_type="dqn")
+    model_path = find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")
     results_2.load(model_path, merge=merge)
     model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
 
