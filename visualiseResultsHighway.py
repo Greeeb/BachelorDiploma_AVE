@@ -50,7 +50,7 @@ def main():
     plt.xticks(x + width * 2, model_names)
     plt.legend()
     plt.tight_layout()
-    plt.savefig("Rewards.png")
+    plt.savefig(r"Figures/Rewards.png")
 
     # Dones and truncateds bar chart
     dones = [results_1.dones.sum(), results_2.dones.sum()]
@@ -64,7 +64,7 @@ def main():
     plt.title('Dones and Truncated Episodes by Model')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('Dones-Truncateds.png')
+    plt.savefig(r'Figures/Dones-Truncateds.png')
 
     # Criticality plots for first 10 episodes
     model1_data = results_1.criticality
@@ -76,7 +76,7 @@ def main():
         ax.set_title(f'Episode {i+1}')
         ax.legend()
     plt.tight_layout()
-    plt.savefig("Criticality_Comparison_First10.png")
+    plt.savefig(r"Figures/Criticality_Comparison_First10.png")
 
     # Criticality distribution plot with logarithmic scale on the y-axis
     plt.figure(figsize=(12, 6))
@@ -88,7 +88,7 @@ def main():
     plt.xlabel("Criticality")
     plt.ylabel("Frequency (Log Scale)")
     plt.legend()
-    plt.savefig("Criticality_Distribution_Log.png")
+    plt.savefig(r"Figures/Criticality_Distribution_Log.png")
 
     # # Distance graph
     # distance_model1 = np.sum(results_1.velocities * results_1.time_deltas)
@@ -108,7 +108,7 @@ def main():
     # plt.ylabel("Distance (units)")
     # plt.title("Total and Average Distance by Model")
     # plt.legend()
-    # plt.savefig("Distance_Comparison.png")
+    # plt.savefig(r"Figures/Distance_Comparison.png")
 
     # Reward type comparison across episodes
     fig, axes = plt.subplots(len(reward_types), 1, figsize=(10, 20))
@@ -118,7 +118,7 @@ def main():
         axes[i].set_title(f"Reward: {reward_type}")
         axes[i].legend()
     plt.tight_layout()
-    plt.savefig("Reward_Comparison.png")
+    plt.savefig(r"Figures/Reward_Comparison.png")
 
    # Episode time comparison
     episode_times_highway = results_1.times
@@ -158,7 +158,7 @@ def main():
     plt.gcf().text(0.8, 0.15, text, fontsize=10, bbox=dict(facecolor="white", alpha=0.8))
 
     plt.tight_layout()
-    plt.savefig("Episode_Times_with_Variance_Simple.png")
+    plt.savefig(r"Figures/Episode_Times_with_Variance_Simple.png")
     plt.show()
 
 if __name__=="__main__":

@@ -107,14 +107,14 @@ class Results():
     def return_average(self, merge=False):
         if merge:
             self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
-                        "collision_reward": statistics.mean([reward[0]["collision_reward"] for reward in self.rewards[2:]]),
+                        "collision_reward": sum([reward[0]["collision_reward"] for reward in self.rewards[2:]])/1000,
                         "right_lane_reward": statistics.mean([reward[0]["right_lane_reward"] for reward in self.rewards[2:]]),
                         "high_speed_reward": statistics.mean([reward[0]["high_speed_reward"] for reward in self.rewards[2:]]),
                         "lane_change_reward": statistics.mean([reward[0]["lane_change_reward"] for reward in self.rewards[2:]]),
                         "merging_speed_reward": statistics.mean([reward[0]["merging_speed_reward"] for reward in self.rewards[2:]])}
         else:
             self.avg_rewards = {"general_reward": statistics.mean([reward[0]["general_reward"] for reward in self.rewards[2:]]),
-                        "collision_reward": statistics.mean([reward[0]["collision_reward"] for reward in self.rewards[2:]]),
+                        "collision_reward": sum([reward[0]["collision_reward"] for reward in self.rewards[2:]])/1000,
                         "right_lane_reward": statistics.mean([reward[0]["right_lane_reward"] for reward in self.rewards[2:]]),
                         "high_speed_reward": statistics.mean([reward[0]["high_speed_reward"] for reward in self.rewards[2:]]),
                         "on_road_reward": statistics.mean([reward[0]["on_road_reward"] for reward in self.rewards[2:]])}        

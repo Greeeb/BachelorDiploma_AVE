@@ -38,7 +38,7 @@ def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
 
     for episode in tqdm.tqdm(range(episodes)):
         # Resetting values for every episode 
-        (obs, info), done, truncated = env.reset(seed=seed + episode), False, False
+        (obs, info), done, truncated = env.reset(seed=seed + episode*10), False, False
         episode_rewards = {
             'general_reward': 0,
             'collision_reward': 0,
