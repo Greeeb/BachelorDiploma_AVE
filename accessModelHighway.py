@@ -22,7 +22,7 @@ def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
 
     # Loading the model
     model_path = find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")
-    model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=seed, # make sure to keep seed same
+    model = DQN('MlpPolicy', env=env, exploration_fraction=0.1, seed=seed, # make sure to keep seed same
                 policy_kwargs=dict(net_arch=[256, 256]),
                 learning_rate=5e-4,
                 batch_size=32,

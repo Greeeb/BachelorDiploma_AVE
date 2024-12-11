@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+            {
+    "label": "Python",
+    "type": "shell",
+    "command": "python -u ${file} | tee logs.txt",
+    "presentation": {
+    "echo": True,
+    "reveal": "always",
+    "focus": True,
+    "panel": "shared",
+    "showReuseMessage": True,
+    "clear": False
+                },
+    "group": {
+    "kind": "build",
+    "isDefault": True
+                }
+            }
+        ]
+    }

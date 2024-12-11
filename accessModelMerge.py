@@ -10,17 +10,19 @@ from scipy.signal import find_peaks  # For detecting peaks
 # TODO: Always check the iterations 
 iterations = 10000
 seed = 200
-copy_num = 7
-episodes = 2
+copy_num = 6
+episodes = 1000
+seed = 200
+torch.cuda.set_device(1)
 
-def main(iterations=iterations, copy=copy_num):
+def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
     copy_num = copy
     # Setting up the models
     env = setup_merge_env()
 
     # Loading the model
     model_path = find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")
-    model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=100, # make sure to keep seed same
+    model = DQN('MlpPolicy', env=env, exploration_fraction=0.3, seed=seed, # make sure to keep seed same
                 policy_kwargs=dict(net_arch=[256, 256]),
                 learning_rate=5e-4,
                 batch_size=32,
@@ -36,7 +38,7 @@ def main(iterations=iterations, copy=copy_num):
 
     for episode in tqdm.tqdm(range(episodes)):
         # Resetting values for every episode 
-        (obs, info), done, truncated = env.reset(seed=seed + episode), False, False
+        (obs, info), done, truncated = env.reset(seed=seed + episode*10), False, False
         episode_rewards = {
             "general_reward": 0,
             "collision_reward": 0,
@@ -56,7 +58,7 @@ def main(iterations=iterations, copy=copy_num):
             obs_next, reward, done, truncated, info = env.step(int(action))
 
             # Calculate criticality
-            q_value = model.q_net(torch.tensor(obs_next, dtype=torch.float32, device="cuda:0").flatten().unsqueeze(0)).tolist()[0]
+            q_value = model.q_net(torch.tensor(obs_next, dtype=torch.float32, device="cuda:1").flatten().unsqueeze(0)).tolist()[0]
             criticality.append(statistics.variance(q_value))
 
             # Capture rendering and timestamp
@@ -93,7 +95,7 @@ def main(iterations=iterations, copy=copy_num):
         ])
 
     # Save results
-    results.save(copy_num=copy_num)
+    results.save(copy_num=save_copy, iter=iterations)
 
 
 if __name__=="__main__":

@@ -4,11 +4,12 @@ from Functions import *
 
 
 iterations = 1000
+seed = 100
 
-def main(iterations=iterations, copy_num=5):
+def main(iterations=iterations, copy_num=5, seed=seed):
     env = setup_highway_env()
 
-    model = DQN('MlpPolicy', env=env, exploration_fraction=0.7, seed=100, # make sure to keep seed same
+    model = DQN('MlpPolicy', env=env, exploration_fraction=0.1, seed=seed, # make sure to keep seed same
                     policy_kwargs=dict(net_arch=[256, 256]),
                     learning_rate=5e-4,
                     batch_size=32,

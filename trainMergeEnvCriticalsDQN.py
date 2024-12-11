@@ -9,10 +9,11 @@ iter = 10000
 criticals_file = "model_dqn_100000_crit"  # Folder name from the criticality_renderings folder
 torch.cuda.set_device(1)
 copy_num = 7
+seed = 100
 
 
-def main(copy_num=copy_num):
-    env = setup_highway_env()
+def main(copy_num=copy_num, iter_load=iter, criticals_file = criticals_file, seed=seed, save_copy=copy_num, iter_save=iter):
+    env = setup_merge_env()
 
     results = Results()
     results.load(
@@ -22,12 +23,11 @@ def main(copy_num=copy_num):
     iterations = critical_obs.shape[0]
     print(iterations)
     
-    trainHighway(1000, copy_num=copy_num-1)
     
     # Loading the model
-    model_path = find_model_path(iter=1000, last=True, copy_num=copy_num-1, model_type="dqn")
+    model_path = find_model_path(iter=iter_load, last=True, copy_num=copy_num, model_type="dqn")
     
-    model = DQN('MlpPolicy', env=env, exploration_fraction=0.1, seed=100, # make sure to keep seed same
+    model = DQN('MlpPolicy', env=env, exploration_fraction=0.1, seed=seed, # make sure to keep seed same
                     policy_kwargs=dict(net_arch=[256, 256]),
                     learning_rate=5e-4,
                     batch_size=32,
@@ -50,8 +50,8 @@ def main(copy_num=copy_num):
         model.replay_buffer.add(obs=obs, next_obs=obs_next, reward=reward, done=done, action=action, infos=info)
 
     model.learn(iterations, progress_bar=True)
-    model.save(find_model_path(iter=iter, last=True, copy_num=copy_num, model_type="dqn"))
-       
+    model.save(find_model_path(iter=iter_save, last=True, copy_num=save_copy, model_type="dqn"))
+    
 
 if __name__=="__main__":
     main()
