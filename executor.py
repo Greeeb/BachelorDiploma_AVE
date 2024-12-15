@@ -8,18 +8,17 @@ from trainMergeEnvCriticalsDQN import main as trainCritMe
 import time, numpy
 
 for i in range(6, 10):
-    if not i==6:
-        Highway(100000, i, 100) # Train highway
-        print("highway trained")
-        Merge(100000, 10000, i, 100) # Train Merge 10000 on model of Highway 100000
-        print("merge trained")
+    Highway(100000, i, 100) # Train highway
+    print("highway trained")
+    Merge(100000, 10000, i, 100) # Train Merge 10000 on model of Highway 100000
+    print("merge trained")
     accessMerge(10000, i, 100, i) # Access Merge 10000 on merge-env
     print("merge accessed")
     accessMerge(100000, i, 100, i) # Access Highway 100000 on merge-env to get criticals
     print("highway accessed")
     trainCritMe(i, 100000, f"model_dqn_100000({i})", 100, i, 1000) # train Merge on criticals from highway 100000 in merge-env
     print("merge crit trained")
-    accessMerge(1000, i, 100, i) # Access Merge trained on criticals
+    accessMerge(1000, i, 100, i) # Access Merge trained on criticals    
     print("merge crit accessed")
 
 

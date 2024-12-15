@@ -10,7 +10,7 @@ copy_num=0
 
 def main(copy_num=copy_num):
     model_names = list()
-
+    
     # Initialise results class for the first Merge model
     results_1 = Results()
     model_path = find_model_path(iter=100000, last=True, copy_num=copy_num, model_type="dqn")
