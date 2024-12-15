@@ -17,7 +17,8 @@ def main(copy_num=copy_num, iter_load=iter, criticals_file = criticals_file, see
 
     results = Results()
     results.load(
-        os.path.join(os.path.abspath(os.path.curdir), "saveResults", criticals_file)
+        os.path.join(os.path.abspath(os.path.curdir), "saveResults", criticals_file),
+        merge=True
         )
     critical_obs = results.crit_obs
     iterations = critical_obs.shape[0]
