@@ -165,29 +165,6 @@ class Results():
         self.results_dict["criticality"] = np.array(padded_criticality)
         self.results_dict["crit_obs"] = np.array(crit_obs)
         
-        # # Prepare to save peak renderings in a structured directory
-        # model_name = os.path.basename(find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn"))
-        # render_dir = os.path.join("criticality_renderings", model_name)
-        
-        # if not os.path.exists(render_dir):
-        #     os.makedirs(render_dir)
-
-        # # Save each episode's peak renderings in its own folder
-        # for episode_idx, episode_renderings in tqdm.tqdm(enumerate(self.peak_renderings))   :
-        #     episode_dir = os.path.join(render_dir, f"episode_{episode_idx}")
-        #     if not os.path.exists(episode_dir):
-        #         os.makedirs(episode_dir)
-
-        #     # Save each rendering in the episode's directory, using the timestamp as filename
-        #     for timestamp, rendering in episode_renderings:
-        #         filename = f"{timestamp:.2f}.png"  # Save as PNG
-        #         file_path = os.path.join(episode_dir, filename)
-                
-        #         # Convert numpy array to image and save as PNG
-        #         image = Image.fromarray((rendering * 255).astype(np.uint8))  # Assuming rendering is in [0,1] range
-        #         image.save(file_path)
-        
-        # Saving the np array of all the last states(first array is zeroes)
         if merge:
             for var in self.results_dict.keys():
                 np.save(os.path.join(str(results_path(find_model_path(iter=iter, last=True, copy_num=copy_num, model_type="dqn")))[:-4]+"_merge.zip", f"{var}"), self.results_dict[var])
