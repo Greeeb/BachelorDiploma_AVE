@@ -9,7 +9,7 @@ merge = True
 copy_num=0
 
 def main(copy_num=copy_num):
-    model_names = ["Model Highway 100000", "Model Merge 10000", "Model Merge Critical"]
+    model_names = ["Model Merge 100000", "Model Merge 10000", "Model Merge Critical"]
     results = [[],[],[]]
     
     for i in range(10):

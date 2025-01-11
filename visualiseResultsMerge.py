@@ -6,7 +6,7 @@ import seaborn as sns
 
 iterations = 100000
 merge = True
-copy_num=0
+copy_num=3
 
 def main(copy_num=copy_num):
     model_names = list()
@@ -62,8 +62,8 @@ def main(copy_num=copy_num):
     truncateds = [results_1.truncateds.sum(), results_2.truncateds.sum(), results_3.truncateds.sum()]
 
     plt.figure(figsize=(10, 6))
-    plt.bar(model_names, dones, label='Dones')
-    plt.bar(model_names, truncateds, bottom=dones, label='Truncateds')
+    plt.bar(model_names, dones, label='Crushed')
+    plt.bar(model_names, truncateds, bottom=dones, label='Terminated')
     plt.xlabel('Model')
     plt.ylabel('Episode Count')
     plt.title('Dones and Truncated Episodes by Model')
@@ -118,10 +118,10 @@ def main(copy_num=copy_num):
     avg_time_merge = np.mean(episode_times_merge)
     avg_time_merge2 = np.mean(episode_times_merge2)
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(episode_times_highway[1:101], label="Model 1", color="blue")
-    plt.plot(episode_times_merge[1:101], label="Model 2", color="red")
-    plt.plot(episode_times_merge2[1:101], label="Model 3", color="green")
+    plt.figure(figsize=(15, 10))
+    plt.plot(episode_times_highway[2:201], label="Model 1", color="blue")
+    plt.plot(episode_times_merge[2:201], label="Model 2", color="red")
+    plt.plot(episode_times_merge2[2:201], label="Model 3", color="green")
     plt.axhline(avg_time_highway, color="blue", linestyle="--", label=f"Model 1 Avg: {avg_time_highway:.2f}s")
     plt.axhline(avg_time_merge, color="red", linestyle="--", label=f"Model 2 Avg: {avg_time_merge:.2f}s")
     plt.axhline(avg_time_merge2, color="green", linestyle="--", label=f"Model 3 Avg: {avg_time_merge2:.2f}s")

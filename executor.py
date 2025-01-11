@@ -7,20 +7,25 @@ from trainHighwayEnvCriticalsDQN import main as trainCritHi
 from trainMergeEnvCriticalsDQN import main as trainCritMe
 import time, numpy
 
-for i in range(0, 10):
+#i = input("copy number: ")
+for i in range(10):
     #Highway(100000, i, 2000*i) # Train highway
     print("highway trained")
     #Merge(100000, 10000, i, 2000*i) # Train Merge 10000 on model of Highway 100000
     print("merge trained")
-    accessMerge(10000, i, 2000, i) # Access Merge 10000 on merge-env
+    #accessMerge(10000, i, 2000, i) # Access Merge 10000 on merge-env
     print("merge accessed")
-    accessMerge(100000, i, 2000, i) # Access Highway 100000 on merge-env to get criticals
+    #accessMerge(100000, i, 2000, i) # Access Highway 100000 on merge-env to get criticals
     print("highway accessed")
     #trainCritMe(i, 100000, f"model_dqn_100000({i})", 2000*i, i, 1000) # train Merge on criticals from highway 100000 in merge-env
     print("merge crit trained")
-    accessMerge(1000, i, 2000, i) # Access Merge trained on criticals    
+    #accessMerge(1000, i, 2000, i) # Access Merge trained on criticals    
     print("merge crit accessed")
-
+    if i != 0:
+        Merge(100000, i, 2000*i, 100000)
+    print("merge pure trained")
+    accessMerge(100000, i, 2000, i)
+    print("merge pure accessed")
 
 # start = time.time()
 # trainHi(1000, 5)
