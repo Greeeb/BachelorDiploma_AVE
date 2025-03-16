@@ -6,144 +6,251 @@ import seaborn as sns
 
 iterations = 100000
 merge = True
-copy_num=3
+copy_num=1
 
 def main(copy_num=copy_num):
     model_names = list()
+    results = list()
+    for copy_num in range(10):
+        # Initialise results class for the first Merge model
+        results_1 = Results()
+        model_path = find_model_path(iter=100000, last=True, copy_num=copy_num, model_type="dqn")
+        results_1.load(model_path, merge=merge)
+        
 
-    # Initialise results class for the first Merge model
-    results_1 = Results()
-    model_path = find_model_path(iter=100000, last=True, copy_num=copy_num, model_type="dqn")
-    results_1.load(model_path, merge=merge)
-    model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
+        # Initialise results class for the second Merge model
+        results_2 = Results()
+        model_path = find_model_path(iter=10000, last=True, copy_num=copy_num, model_type="dqn")
+        results_2.load(model_path, merge=merge)
+        
+        
+        # Initialise results class for the second Merge model
+        results_3 = Results()
+        model_path = find_model_path(iter=1000, last=True, copy_num=copy_num, model_type="dqn")
+        results_3.load(model_path, merge=merge)
+        
+        
+        results.append([results_1, results_2, results_3])
 
-    # Initialise results class for the second Merge model
-    results_2 = Results()
-    model_path = find_model_path(iter=10000, last=True, copy_num=copy_num, model_type="dqn")
-    results_2.load(model_path, merge=merge)
-    model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
+    model_names.append("Pure Merge Model")
+    model_names.append("Highway-Merge Model")
+    model_names.append("Highway-Merge Criticals")
     
-    # Initialise results class for the second Merge model
-    results_3 = Results()
-    model_path = find_model_path(iter=1000, last=True, copy_num=copy_num, model_type="dqn")
-    results_3.load(model_path, merge=merge)
-    model_names.append(model_path.replace(str(os.path.join(os.path.abspath(os.curdir), "BachelorDiploma_AVE", "models")), ""))
-
     # Define the reward types
     reward_types = ["general_reward", "collision_reward", "right_lane_reward", "high_speed_reward", "lane_change_reward", "merging_speed_reward"]
-
-    # Bar chart for average rewards per model
-    avg_rewards = {reward: [] for reward in reward_types}
-    for reward in reward_types:
-        avg_rewards[reward].append(results_1.avg_rewards[reward])
-        avg_rewards[reward].append(results_2.avg_rewards[reward])
-        avg_rewards[reward].append(results_3.avg_rewards[reward])
+    colors = {"Pure Merge Model": "b", "Highway-Merge Model": "orange", "Highway-Merge Criticals": "g"}
 
 
-    plt.figure(figsize=(14, 8))
-    x = np.arange(len(model_names))
-    width = 0.15
+    # Calculate average times for each model type across experiments
+    avg_times = {
+        "Pure Merge Model": [],
+        "Highway-Merge Model": [],
+        "Highway-Merge Criticals": []
+    }
 
-    for i, (key, values) in enumerate(avg_rewards.items()):
-        bars = plt.bar(x + i * width, values, width=width, label=key)
-        for bar in bars:
-            yval = bar.get_height()
-            plt.text(bar.get_x() + bar.get_width() / 2, yval + 0.5, f'{yval:.2f}', ha='center', va='bottom', fontsize=9)
-    plt.xlabel('Model')
-    plt.ylabel('Average Rewards')
-    plt.title('Average Rewards by Model')
-    plt.xticks(x + width * 2, model_names)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(r"Figures/Rewards.png")
-
-    # Dones and truncateds bar chart
-    dones = [results_1.dones.sum(), results_2.dones.sum(), results_3.dones.sum()]
-    truncateds = [results_1.truncateds.sum(), results_2.truncateds.sum(), results_3.truncateds.sum()]
+    for experiment in results:
+        avg_times["Pure Merge Model"].append(experiment[0].avg_times)
+        avg_times["Highway-Merge Model"].append(experiment[1].avg_times)
+        avg_times["Highway-Merge Criticals"].append(experiment[2].avg_times)
 
     plt.figure(figsize=(10, 6))
-    plt.bar(model_names, dones, label='Crushed')
-    plt.bar(model_names, truncateds, bottom=dones, label='Terminated')
-    plt.xlabel('Model')
-    plt.ylabel('Episode Count')
-    plt.title('Dones and Truncated Episodes by Model')
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(r"Figures/Dones-Truncateds.png")
+    x = np.arange(1, 11)
+    width = 0.3  # Bar width
 
-    # Criticality plots for first 10 episodes
-    model1_data = results_1.criticality
-    model2_data = results_2.criticality
-    model3_data = results_3.criticality
-    fig, axes = plt.subplots(2, 5, figsize=(18, 6))
-    for i, ax in enumerate(axes.flat):
-        ax.plot(np.ma.masked_invalid(model1_data[i]), label='Model 1', color='blue')
-        ax.plot(np.ma.masked_invalid(model2_data[i]), label='Model 2', color='red')
-        ax.plot(np.ma.masked_invalid(model3_data[i]), label='Model 3', color='green')
-        ax.set_title(f'Episode {i+1}')
-        ax.legend()
-    plt.tight_layout()
-    plt.savefig(r"Figures/Criticality_Comparison_First10.png")
-
-    # Criticality distribution plot with logarithmic scale on the y-axis
-    plt.figure(figsize=(12, 6))
-    criticality_highway = np.nan_to_num(model1_data).flatten()
-    criticality_merge = np.nan_to_num(model2_data).flatten()
-    criticality_merge2 = np.nan_to_num(model3_data).flatten()
-    sns.histplot(criticality_highway, label="Model 1", color="blue", kde=True, log_scale=(False, True))
-    sns.histplot(criticality_merge, label="Model 2", color="red", kde=True, log_scale=(False, True))
-    sns.histplot(criticality_merge2, label="Model 3", color="green", kde=True, log_scale=(False, True))
-    plt.title("Criticality Distribution by Frequency (Logarithmic Scale)")
-    plt.xlabel("Criticality")
-    plt.ylabel("Frequency (Log Scale)")
-    plt.legend()
-    plt.savefig(r"Figures/Criticality_Distribution_Log.png")
-
-    # Reward type comparison across episodes
-    fig, axes = plt.subplots(len(reward_types), 1, figsize=(10, 20))
-    for i, reward_type in enumerate(reward_types):
-        axes[i].plot([reward[0][reward_type] for reward in results_1.rewards[1:101]], label="Model 1", color="blue")
-        axes[i].plot([reward[0][reward_type] for reward in results_2.rewards[1:101]], label="Model 2", color="red")
-        axes[i].plot([reward[0][reward_type] for reward in results_3.rewards[1:101]], label="Model 3", color="green")
-        axes[i].set_title(f"Reward: {reward_type}")
-        axes[i].legend()
-    plt.tight_layout()
-    plt.savefig(r"Figures/Reward_Comparison.png")
-
-    # Episode time comparison
-    episode_times_highway = results_1.times
-    episode_times_merge = results_2.times
-    episode_times_merge2 = results_3.times
-    avg_time_highway = np.mean(episode_times_highway)
-    avg_time_merge = np.mean(episode_times_merge)
-    avg_time_merge2 = np.mean(episode_times_merge2)
-
-    plt.figure(figsize=(15, 10))
-    plt.plot(episode_times_highway[2:201], label="Model 1", color="blue")
-    plt.plot(episode_times_merge[2:201], label="Model 2", color="red")
-    plt.plot(episode_times_merge2[2:201], label="Model 3", color="green")
-    plt.axhline(avg_time_highway, color="blue", linestyle="--", label=f"Model 1 Avg: {avg_time_highway:.2f}s")
-    plt.axhline(avg_time_merge, color="red", linestyle="--", label=f"Model 2 Avg: {avg_time_merge:.2f}s")
-    plt.axhline(avg_time_merge2, color="green", linestyle="--", label=f"Model 3 Avg: {avg_time_merge2:.2f}s")
-    plt.xlabel("Episode")
-    plt.ylabel("Time (seconds)")
-    plt.title("Episode Time Comparison by Model")
-    plt.legend()
+    print(avg_times)
     
-    # models = [""]
-    # # Plot average and variance for each model
-    # for i, model in enumerate(models):
-    #     plt.plot(x, average_times[i], label=f"{model} Average", linewidth=2)
-    #     plt.plot(x, variance_times[i], linestyle="--", label=f"{model} Variance", linewidth=1)
+    for i, model in enumerate(model_names):
+        plt.bar(x + i * width, avg_times[model], width, label=model, color=colors[model], alpha=0.7)
+        avg_time = np.mean(avg_times[model])
+        plt.axhline(avg_time, color=colors[model], linestyle="dashed", label=f"{model} (Avg)")
+        if model=='Highway-Merge Criticals':
+            plt.text(10.8, avg_time-0.03, f"{avg_time:.2f}", fontsize=10)
+        else:
+            plt.text(10.8, avg_time+0.005, f"{avg_time:.2f}", fontsize=10)
 
-    # # Add labels, legend, and title
-    # plt.xlabel("Time Step")
-    # plt.ylabel("Time (ms)")
-    # plt.title("Average and Variance of Times for Models")
+    plt.xlabel("Experiment")
+    plt.ylabel("Average Episode Duration")
+    plt.title("Average Episode Duration per Experiment")
+    plt.xticks(x + width, range(1, 11))
+    plt.legend(loc="lower right")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+
+    # Calculate average rewards and standard deviations for each model type across experiments
+    avg_rewards_all = {
+        "Pure Merge Model": {reward: [] for reward in reward_types},
+        "Highway-Merge Model": {reward: [] for reward in reward_types},
+        "Highway-Merge Criticals": {reward: [] for reward in reward_types}
+    }
+
+    std_rewards_all = {
+        "Pure Merge Model": {reward: [] for reward in reward_types},
+        "Highway-Merge Model": {reward: [] for reward in reward_types},
+        "Highway-Merge Criticals": {reward: [] for reward in reward_types}
+    }
+
+    # Aggregate rewards and compute means and standard deviations
+    for experiment in results:
+        for i, model in enumerate(avg_rewards_all.keys()):
+            for reward in reward_types:
+                avg_rewards_all[model][reward].append(experiment[i].avg_rewards[reward])
+
+    for model in avg_rewards_all:
+        for reward in reward_types:
+            std_rewards_all[model][reward] = np.std(avg_rewards_all[model][reward])
+            avg_rewards_all[model][reward] = np.mean(avg_rewards_all[model][reward])
+            
+
+    # Convert general rewards into a bar chart
+    plt.figure(figsize=(10, 6))
+    bar_width = 0.2  # Width of each bar
+    x = np.arange(len(results))  # X-axis positions for experiments
+
+    for i, (model, color) in enumerate(avg_rewards_all.items()):
+        general_rewards = [experiment[i].avg_rewards["general_reward"] for experiment in results]
+        
+        # Plot bar chart
+        plt.bar(x + i * bar_width, general_rewards, width=bar_width, label=model, color=colors[model], alpha=0.7)
+        
+        # Calculate and plot average line
+        avg_general_reward = np.mean(general_rewards)
+        plt.axhline(y=avg_general_reward, color=colors[model], linestyle='--')
+        plt.text(len(results), avg_general_reward+0.1, f'{avg_general_reward:.2f}')
+
+    # Formatting
+    plt.xlabel('Experiment')
+    plt.ylabel('General Reward')
+    plt.title('General Reward per Experiment for Each Model')
+    plt.xticks(x + bar_width, range(1, len(results) + 1))  # Align x-ticks
+    plt.legend(loc="lower right")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+
+    x = np.arange(len(reward_types))  # the label locations
+    width = 0.2  # the width of the bars
+
+    fig, ax = plt.subplots(figsize=(14, 7))
+
+    for i, (model, color) in enumerate(colors.items()):
+        means = [avg_rewards_all[model][reward] for reward in reward_types]
+        stds = [std_rewards_all[model][reward] for reward in reward_types]
+        bars = ax.bar(x + i * width, means, width, yerr=stds, capsize=6, color=color, label=model, alpha=0.7)
+
+        # Add data labels above the error bars
+        for bar, mean, std in zip(bars, means, stds):
+            ax.text(bar.get_x() + bar.get_width() / 2, mean + std + 0.2, f'{mean:.2f}',
+                    ha='center', va='bottom', fontsize=10)
+
+    ax.set_xlabel('Reward Types', fontsize=14)
+    ax.set_ylabel('Average Reward', fontsize=14)
+    ax.set_title('Average Rewards by Model and Reward Type (Averaged Over Experiments)', fontsize=16)
+
+    ax.set_xticks(x + width)
+    ax.set_xticklabels(reward_types, rotation=45, ha="right", fontsize=12)
+    ax.legend(loc='upper right', fontsize=10)
+
+    ax.grid(axis='y', linestyle='--', alpha=0.6)
+    plt.tight_layout()
+   
+    
+    # Collect criticality values for each model type across experiments
+    criticality_values = {
+        "Pure Merge Model": [],
+        "Highway-Merge Model": [],
+        "Highway-Merge Criticals": []
+    }
+
+    # for experiment in results:
+    #     criticality_values["Pure Merge Model"].extend(experiment[0].criticality.flatten())
+    #     criticality_values["Highway-Merge Model"].extend(experiment[1].criticality.flatten())
+    #     criticality_values["Highway-Merge Criticals"].extend(experiment[2].criticality.flatten())
+    
+    # # Plot the smooth criticality appearance count graph with logarithmic y-axis
+    # plt.figure(figsize=(10, 6))
+
+    # for model, values in criticality_values.items():
+    #     # Remove NaN values (if any)
+    #     values = np.array(values)
+    #     values = values[~np.isnan(values)]  # Filter out NaN values
+        
+    #     # Use KDE for smooth curve
+    #     sns.kdeplot(values, label=model, log_scale=(False, True))  # Log scale only on y-axis
+
+    # plt.xlabel('Criticality Value')
+    # plt.ylabel('Density (Log Scale)')
+    # plt.title('Testing Graph of Smooth Distribution of Criticality Values (Logarithmic Y-axis)')
     # plt.legend()
     # plt.grid(True)
-    # plt.tight_layout()
-    plt.savefig(r"Figures/Episode_Times.png")
+    
+    # Calculate collision rates for each model type across experiments
+    collision_rates = {
+        "Pure Merge Model": [],
+        "Highway-Merge Model": [],
+        "Highway-Merge Criticals": []
+    }
+
+    for experiment in results:
+        for i, model in enumerate(collision_rates.keys()):
+            # Count the number of episodes with collisions
+            collision_count = np.sum([1 for done in experiment[i].dones[2:] if done[0] == 1])
+            total_episodes = len(experiment[i].dones[2:])
+            collision_rates[model].append(collision_count / total_episodes)
+    
+    x = np.arange(1, 11)
+    plt.figure(figsize=(10, 6))
+    for i, model in enumerate(model_names):
+        plt.bar(x + i * width, collision_rates[model], width, label=model, color=colors[model], alpha=0.7)
+        avg_rate = np.mean(collision_rates[model])
+        plt.axhline(avg_rate, color=colors[model], linestyle="dashed", label=f"{model} (Avg)")
+        plt.text(10.55, avg_rate + 0.01, f"{avg_rate:.2f}", fontsize=10, color="black")
+
+    plt.xlabel("Experiment")
+    plt.ylabel("Collision Rate")
+    plt.title("Collision Rate per Experiment")
+    plt.xticks(x + width, range(1, 11))
+    plt.legend(loc="center right")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    # File paths and data collection
+    base_path = r"C:\Users\memen\THI\BachelorDiploma_AVE\saveResults\Highway100000_accessed"
+    critical_obs_counts = []
+    traditional_steps = [10000] * 10  # Traditional TL step count
+
+    for i in range(10):
+        file_path = os.path.join(base_path, f"model_dqn_100000({i})", "crit_obs.npy")
+        critical_obs_counts.append(len(np.load(file_path)) if os.path.exists(file_path) else 0)
+
+    # Define x-axis positions
+    x = np.arange(1, 11)  # Experiment numbers
+    bar_width = 0.4  # Bar width
+
+    # Plot bar chart
+    plt.figure(figsize=(10, 6))
+    plt.bar(x - bar_width / 2, critical_obs_counts, width=bar_width, color=colors["Highway-Merge Criticals"], alpha=0.7, label="Critical TL Steps")
+    plt.bar(x + bar_width / 2, traditional_steps, width=bar_width, color=colors["Highway-Merge Model"], alpha=0.7, label="Traditional TL Steps")
+
+    # Compute and plot average line for critical observations
+    avg_critical_obs = np.mean(critical_obs_counts)
+    plt.axhline(avg_critical_obs, color="black", linestyle="dashed", label="Avg Critical Observations")
+    plt.text(10.9, avg_critical_obs + 100, f"{avg_critical_obs:.2f}", fontsize=10, color="black")
+    
+    # Add text labels above bars
+    for i, obs in enumerate(critical_obs_counts):
+        plt.text(x[i] - bar_width / 2, obs + 100, f"{obs}", fontsize=10, color="black", ha='center', va='bottom')
+    for i, step in enumerate(traditional_steps):
+        plt.text(x[i] + bar_width / 2, step + 100, f"{step}", fontsize=10, color="black", ha='center', va='bottom')
+
+    # Formatting
+    plt.xlabel("Experiment")
+    plt.ylabel("Number of Training Steps")
+    plt.title("Comparison of Critical TL vs Traditional TL Training Step Number")
+    plt.xticks(x)
+    plt.legend(loc="center right")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    
+    plt.show()
+
 
 if __name__=="__main__":
     main()

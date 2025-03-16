@@ -7,7 +7,7 @@ from Functions import *
 
 iter = 10000
 criticals_file = "model_dqn_100000_crit"  # Folder name from the criticality_renderings folder
-torch.cuda.set_device(1)
+# torch.cuda.set_device(1)
 copy_num = 7
 seed = 100
 

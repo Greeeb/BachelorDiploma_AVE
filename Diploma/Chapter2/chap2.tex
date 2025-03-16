@@ -1,52 +1,112 @@
 % Chapter 2:
 \section{Literature survey}\label{chap:chap_2}
 
-%-----------
-% Section 1: Brief introduction to autonomous driving and it's modules
-\subsection{Criticality}\label{sec:subsec_2.1}
-
-One small branch that can be applied to any type of learning which is not explored deep enough and not widely applied yet is criticality. The criticality has varios ways to be computed when used in reinforcement learning and autonomous driving. Despite that the definition of criticality is general for all the possible implementation fields: the higher vallue of criticality corresponce to the lower value of safety and higher threat level\cite{CriticalityAutonomous2023} in a chosen situation. 
-
-In a field of autonomous driving the knowledge of criticality, especially the ability of the machine to approximate this value, is crusial for the algorithms that are either already used or are still under development. The ability of models that control driving behavior to process the environment, observations and disturbances to evaluate the measure for the threat level of the situation in a real-time can boost the performance and increase the reliability of autonomous driving technologies. 
-
-The policy can be a base to calculate necessary value. The criticality of a state can be accessed throught the comparison of an entropy of the policy's output action distribution captured at a state \texttt{s} with the threshold value. In this method the threshold value \texttt{t} is the one controlling the number of states to be considered "critical"~\cite{huang2018establishingappropriatetrustcritical}: 
-
-\[ 
-C_{\pi} = \{ s \mid \mathcal{H}(\pi(\cdot \mid s)) < t \}
-\]
-
-
-Instead of a policy, in actor-critic methods it can be useful to consider the the action-value funciton(Q-function). Mainly the formula decides if the state is critical according to following condition: if the result produced by the random decision-making process is much worse than the result of acting optimally, then the state is critical.
-
-\[
-C_{\pi} = \{ s \mid \max_{a} Q^{\pi}(s, a) - \frac{1}{|A|} \sum_{a} Q^{\pi}(s, a) > t \}
-\]
-
-
-There are many other numerical methods to define the criticality value to be used in different algorithms and systems, however, for this thesis there was a simpler solution chosen. The reliable indicator of the criticality is a variance of the Q-function~\cite{Spielberg_Azaria_2022}. The higher the variance of the Q-function among all pollible actions in a particular state, the more one action/s is probable to be selected by the trained policy than rest. The state, where the probability of one state/s is reasonably higher than others can then be labeled "critical".
-
-Considering the existing research into different methods of calculation, evaluation or approximation of criticality the target of this bachelor work was chosen not to develop a more complex, optimised or effective technique to measure criticaliy, not at all. Current research tries to go deeper into applications of criticality and, more precisely critical states, in transfer learning. 
-
-%-----------
-% Section 2: 
 \subsection{Transfer Learning}\label{sec:subsec_2.2}
 
-Training a machine learning algorithm of an optimal quality and performance requires big sets of training and evaluation data. Those sets are usually hard to gather or generate, as it costs time and money. The approach to be used as a better means of data collection is Transer Learning. The philosophy of this approach is to utilize models trained for tasks related to the target challenge so that the solution does not need to be developed from scratch~\cite{Hosna2022}. Transfer learning tends help the Machine learning to become more universal and adaptive to new tasks as it creates models which own a collection of knowledge of other models. 
+Training a machine learning algorithm of optimal quality and performance requires big sets of training and evaluation data. Those sets are usually hard to gather or generate, as it costs time and money. The approach to be used as a better means of data collection is Transfer Learning (TL). The philosophy of this approach is to utilize models trained for tasks related to the target challenge so that the solution does not need to be developed from scratch~\cite{Hosna2022}. TL tends to help Reinforcement Learning (RL) to become more universal and adaptive to new tasks as it creates models which own a collection of knowledge of other models. 
 
-The approach of Transfer Learning can easily be found in real life. For instance, in linguistics, if a person has knowledge of one language, it becomes easier for them to learn a new language from the same language group. In the scope of this thesis, transfer learning was performed between two environments: \texttt{Highway-Env} and \texttt{Merge-Env}. 
+The approach of TL can easily be found in real life. For instance, in linguistics, if a person knows one language, it becomes easier for them to learn a new language from the same language group. In the scope of this thesis, TL was performed between two environments: \emph{Highway-Env} and \emph{Merge-Env}. 
 
-The necessity and privilege of using Transfer Learning can be seen when applying the approach to tasks related to one another. The autonomous driving task of the agent is to be equally applicable to both environments used throughout the thesis. Moreover, there are some feature sets that those environments share, such as:
+The necessity and privilege of using TL can be seen when applying the approach to tasks related to one another. The autonomous driving task of the agent is to be equally applicable to both environments used throughout the thesis. Moreover, there are some feature sets that those environments share, such as:
 \begin{itemize}
     \item Operating between multiple lanes,
     \item Surrounding vehicles capable of accelerating/decelerating and changing lanes.
 \end{itemize}
 
-Looking into the scientific field, an analogy can represent the exact approach of Transfer Learning: studying math and physics. If a person who studied math starts deepening their knowledge in physics, this can be called Transfer Learning, as the math expertise makes it easier to acquire new knowledge in the field of physics. However, some themes in math will not be required while learning physics. Compared to the learning process without prior math knowledge, the time and effort investments are noticeably less when Transfer Learning is applied.
+Looking into the scientific field, an analogy can represent the exact approach of TL: studying math and physics. If a person who studied math starts deepening their knowledge in physics, this can be called TL, as the math expertise makes it easier to acquire new knowledge in the field of physics. However, some themes in math will not be required while learning physics. Compared to the learning process without prior math knowledge, the time and effort investments are noticeably less when TL is applied.
+
+\subsection{Criticality}\label{sec:subsec_2.1}
+
+One small branch that can be applied to any type of learning which is not explored deep enough and not widely applied yet is criticality. The criticality has various ways to be computed when used in RL and autonomous driving. Despite that the definition of criticality is general for all the possible implementation fields: the higher value of criticality correspondence to the lower value of safety and higher threat level\cite{CriticalityAutonomous2023} in a chosen situation.
+
+In the field of autonomous driving the knowledge of criticality, especially the ability of the machine to approximate this value, is crucial for the algorithms that are either already used or are still under development. The ability of models that control driving behaviour to process the environment, observations and disturbances to evaluate the measure for the threat level of the situation in real-time can boost the performance and increase the reliability of autonomous driving technologies. 
+
+\subsubsection{Threshold method}\label{sec:threshold}
+
+The policy can be a base to calculate the necessary value. The criticality of a state can be accessed through the comparison of an entropy of the policy's output action distribution captured at a state \texttt{s} with the threshold value. In this method the threshold value \texttt{t} is the one controlling the number of states to be considered "critical"~\cite{huang2018establishingappropriatetrustcritical}: 
+
+\begin{equation}
+    C_{\pi} = \{ s \mid \mathcal{H}(\pi(\cdot \mid s)) < t \}
+    \label{eq:criticality_threshold_1}
+\end{equation}
+
+\begin{itemize}
+    \item \( C_{\pi} \) is the set of critical states under policy \( \pi \).
+    \item \( s \) a state in the environment.
+    \item \( H(\pi(\cdot \mid s)) \) is the entropy of the distribution of the policy's output action at the state \( s \).
+    \item \( t \) is a threshold value determining how much the highest Q-value should differ from an average for the state to be graded as critical.
+\end{itemize}
+
+Instead of a policy, actor-critic methods can be useful in considering the action-value function (Q-function). Mainly, the formula decides if the state is critical according to the following condition: if the result produced by the random decision-making process is much worse than the result of acting optimally, then the state is critical.
+
+\begin{equation}
+    C_{\pi} = \{ s \mid \max_{a} Q^{\pi}(s, a) - \frac{1}{|A|} \sum_{a} Q^{\pi}(s, a) > t \}
+    \label{eq:criticality_threshold_2}
+\end{equation}
+
+where:
+\begin{itemize}
+    \item \( C_{\pi} \) is the set of critical states under policy \( \pi \).
+    \item \( s \) a state in the environment.
+    \item \( a \) is a possible action which can be taken in state \( s \).
+    \item \( Q^{\pi}(s, a) \) is the action-value function, representing the expected return when taking action \( a \) in state \( s \) and following policy \( \pi \).
+    \item \( \max_{a} Q^{\pi}(s, a) \) is the highest Q-value among all possible actions in the state \( s \).
+    \item \( |A| \) is the number of all possible actions.
+    \item \( t \) is a threshold value determining how much the highest Q-value should differ from an average for the state to be classified as critical.
+\end{itemize}
+
+\subsubsection{Peak variance method}
+
+There are many other numerical methods to define the criticality value to be used in different algorithms and systems. However, for this thesis, the difference between the maximum and average Q-value was substituted by the variance value. The variance is calculated by averaging squares of deviations from the distribution mean:
+
+\begin{equation}
+    \sigma^2 = \frac{\sum_{a} (Q^{\pi}(s, a))^2}{|A|} - \left(\frac{\sum_{a} Q^{\pi}(s, a)}{|A|} \right)^2
+    \label{eq:variance}
+\end{equation}
+
+
+The reliable indicator of the criticality is a variance of the Q-function~\cite{Spielberg_Azaria_2022}. When the variability of the Q-function is high among all available actions for a given state, it is more likely for the trained policy to favour one action over others. A state is to be called "critical" if one action has a distinctly higher probability than the rest.
+
+Compared to the difference between the maximum and average of a Q-value, variance can determine criticality not only based on one peaking value but combining all existing values as a set. The variance is also more informative about the overall distribution of Q-values among all actions.
+
+The approach to analyse the variance of Q-values was based on the peak values of the metric. The algorithm and tools used to determine peaking variances will be further explored in Section \ref{sec:criticality}.
+
+Considering the existing research into different methods of calculation, evaluation or approximation of criticality the target of this bachelor's work was chosen not to develop a more complex, optimised or effective technique to measure criticality, not at all. Current research tries to go deeper into applications of criticality and, more precisely critical states, in TL. 
+
+\subsection{Background and Related Work}\label{sec:subsubsec_2.3}
+
+RL is a paradigm of machine learning in which learning is realised through interaction with an environment and receiving rewards for performed actions. The goal of the agent is to maximise the cumulative reward over time.
+
+RL has been widely researched for applications in areas of decision-making and autonomous driving. The focus of many works is on the optimisation of RL efficiency through TL techniques, data sampling strategies and improving the experience replay technologies. The following section explores key contributions to this field, especially those relevant to leveraging criticality in RL to make TL more effective.
+
+\subsubsection{Prioritized Experience Replay}\label{ssec:subsubsec_2.3.1}
+
+An implementation of the Experience Replay as a concept that stabilises and improves the training process in DQN introduced a crucial advancement in the efficiency of RL training. Experiences used, contain information about current status as well as action to be taken, a corresponding reward and the following state. Despite that some experiences are more valuable, in terms of information, than others, the traditional algorithm samples state from Replay Buffer randomly to break correlation between consecutive states.
+
+Prioritised Experience Replay (PER) was introduced in 2016 with "Prioritised Experience Replay"\cite{schaul2016prioritizedexperiencereplay} paper to replace the random sampling method with a more effective one. This research uses the Temporal-Difference (TD) error (calculated with Equation \ref{eq:dqn_loss}) to prioritise samples where the difference between estimated and real values was the highest. This gives the higher priority to samples with a higher learning potential, focusing on crucial transitions. 
+
+The benefit of PER was achieved due to the selective sampling used in RL, which depends on the importance of experiences. The following idea is related to the concept of criticality, which represents the significance of states for the overall performance. PER is focused on the prioritisation of experience based on TD error values, whereas the criticality concept extends this idea and identifies states which have the higher impact on the performance and safety of the model.
+
+\subsubsection{Criticality-Based Advice in Reinforcement Learning}\label{ssec:subsubsec_2.3.2}
+
+In "Criticality-Based Advice in Reinforcement Learning"\cite{Spielberg_Azaria_2022} paper, from 2022, authors explore the criticality application in RL, to be precise advising to the agent while training. The idea was to use criticality measures to identify the most significant states. Based on critical states advice was provided to the agent to develop a better decision-making algorithm.
+
+The research went towards inequality of importance of different states, where if focused on critical states, the agent learned more efficiently avoiding costly mistakes. Applications where the consequences of wrong decisions can be severe, like autonomous driving, are the ones where this approach is highly relevant. Reducing the number of unsafe actions, criticality-based advice improves the performance of models significantly.
+
+\subsubsection{Other Related Research}\label{ssec:subsubsec_2.3.3}
+
+Multiple research papers exist, exploring the exploitation of criticality in RL. For instance, the usage of criticality to establish trust in autonomous systems explored by Huang et al. (2018)\cite{huang2018establishingappropriatetrustcritical}. They aimed to build more reliable RL models that can be achieved via the identification of critical states.
+
+Related studies highlight the potential of criticality measures as an instrument in the improvement of safety and efficiency of RL. Whereas some works focus on the identification of criticality, the research in various application possibilities of this measure is still limited.
 
 % New sub-section:
 % ----------------
-\subsubsection{Q-Learning}\label{ssec:subsubsec_2.2.1}
+\subsection{Literature Gap}\label{ssec:subsubsec_2.4}
 
+RL has been successfully applied to solve complex decision-making challenges, it has proven to be a powerful tool, especially in the fields of robotics and autonomous driving. Despite that, other learning methods are being researched, due to the high time and power resources required for training. Efficiency, being the key criterion for this kind of algorithm, is the major drawback of RL. Because there are millions of steps in the training environment required to obtain a model, which will be able to perform well in complex tasks. This makes the standard method highly impractical in real-world scenarios. 
 
+To address this issue, TL has been introduced. The following technique trains the algorithm based on the pre-trained model, accelerating the training process for new environments. This learning approach utilises knowledge gained in one task to further apply it to another challenge while saving time and reducing the amount of training data for a new model. However, the corresponding method still relies on large and randomly sampled data sets to be fed into the pre-trained model imposing inefficiencies and considerable computational costs. 
+
+Based on existing insights into criticality and TL in general, this thesis aims to propose and verify an improved approach in TL: setting a focus exclusively on critical states while retraining the model in a new environment. This can, theoretically, decrease computational costs and the training time, while preserving or even boosting model performance. 
 
 

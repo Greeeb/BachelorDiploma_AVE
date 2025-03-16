@@ -44,6 +44,7 @@
 \usepackage{parskip}
 \usepackage{enumitem}
 \usepackage{makecell}
+\usepackage{indentfirst}
 \renewcommand\theadfont{\bfseries\sffamily}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -59,7 +60,8 @@
 \setkomafont{pagefoot}{\scshape}				
 \ifoot{\footnotesize{Daniil Navodey}}
 \ofoot{\footnotesize{THI Ingolstadt}}		
-
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
 
 \defpagestyle{myPageStyle}{
 	(0pt ,0pt)
@@ -89,7 +91,8 @@
 %------Length adjustment--------------------------------------------------------
 \setlength{\headsep}{10mm}						
 \setlength{\footskip}{15mm}						
-\setlength{\textheight}{235mm}					
+\setlength{\textheight}{235mm}
+\setlength{\parindent}{10mm}					
 
 
 %----Glossary-------------------------------------------------------------------
@@ -106,7 +109,6 @@
 	affidavit,
 	acknowledgments,
 	abstractEN,
-	confidentialityClause,
 	glossary,
 	mainpart,
 	nomenclature,
@@ -143,21 +145,16 @@
 	\include{abstractEN}
 	\cleardoublepage
 	
-	% Confidentiality clause (from BMW if any)
-	\thispagestyle{myPageStyle}
-	\include{confidentialityClause}
-	\cleardoublepage
-	
 	% Nomenclature
-	\include{nomenclature}		
-	\printnomenclature
-	\cleardoublepage	
+	%\include{nomenclature}		
+	%\printnomenclature
+	%\cleardoublepage	
 	
 	% Glossary
-	\include{glossary}	
-	\printglossaries	
-	\glsaddallunused
-	\cleardoublepage
+	%\include{glossary}	
+	%\printglossaries	
+	%\glsaddallunused
+	%\cleardoublepage
 
 	
 	% List of figures

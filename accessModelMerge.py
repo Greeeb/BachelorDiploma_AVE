@@ -8,11 +8,11 @@ from stable_baselines3 import DQN
 from scipy.signal import find_peaks  # For detecting peaks
 
 # TODO: Always check the iterations 
-iterations = 10000
+iterations = 100000
 copy_num = 3
 episodes = 1000
 seed = 2000
-torch.cuda.set_device("cuda:1")
+# torch.cuda.set_device("cuda:1")
 
 def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
     copy_num = copy
@@ -28,9 +28,8 @@ def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
                 gamma=0.8,
                 train_freq=1,
                 gradient_steps=1,
-                target_update_interval=500,
-                device="cuda:1"
-    ).load(model_path, env=env)
+                target_update_interval=500
+    ).load(model_path, env=env, custom_objects={'observation_space': env.observation_space, 'action_space': env.action_space})
     
     # Initialise results class
     results = Results()
@@ -70,7 +69,7 @@ def main(iterations=iterations, copy=copy_num, seed=seed, save_copy=copy_num):
         
         # Calculate criticality
         for (index, obs) in enumerate(all_obs):
-            q_value = model.q_net(torch.tensor(obs, dtype=torch.float32, device="cuda:1").flatten().unsqueeze(0)).tolist()[0]
+            q_value = model.q_net(torch.tensor(obs, dtype=torch.float32).flatten().unsqueeze(0)).tolist()[0] # , device="cuda:1").flatten().unsqueeze(0)).tolist()[0]
             criticality.append(statistics.variance(q_value))
             timestamps.append(index)
                 

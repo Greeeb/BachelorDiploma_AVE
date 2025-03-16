@@ -2,18 +2,46 @@
 
 \section{Conclusion}\label{chap:chap_5}
 
-In the present chapter the results, accomplishments and come shortcomings of the present thesis are summarized in Section \ref{sec:subsec_5.1}. Some ideas for future research work are highlighted in Section \ref{sec:subsec_5.2}.
-
+In the present chapter, the results, accomplishments and some shortcomings of the present thesis are summarized in Section \ref{sec:subsec_5.1}. Some ideas for future research work are highlighted in Section \ref{sec:subsec_5.2}.
 
 % New Section: 
 % -----------------
 \subsection{Summary}\label{sec:subsec_5.1}
 
+This bachelor's thesis explores leveraging criticality in RL to improve TL in the field of autonomous driving. The research aimed to identify whether a transfer to a new environment can be efficiently realised through training a model on critical states of a target environment. There were four model types developed and evaluated in the \emph{Highway-Env} and \emph{Merge-Env} to assess the impact of TL, the choice of a set of critical states, and the training methodology.
+
+In the beginning, global metrics underwent the examination. Metrics included: collision rate, average episode time and general reward. Through that, the basic knowledge about the model's overall performance level and functionality was obtained, including the ability to handle complex scenarios. The study found that those models, which were obtained through leveraging the TL approach, outperformed models, trained in a single environment, consistently. This concerns both stability and safety. The final discovery is, that the efficienty of proposed hypothesis--leveraging criticality for effective TL--was confirmed experimentally. The consistency of results in global metrics among conducted experiments confirms the idea that the use of critical states for transfer training purposes is effective.
+
+A new approach was introduced, which consists of performing TL purely on critical states to improve the efficiency of TL. In doing so, the focus of the training model was on challenging scenarios. This approach reduced the training step number significantly, maintaining the performance on a level compatible with conventional TL.
+
+The model \texttt{Highway-Merge Model} that was trained with traditional TL on an array of states, sampled randomly, outperformed the \texttt{Pure Merge Model} trained on the \emph{Merge-Env} from scratch. The latter, in turn, demonstrates a higher accident rate, inconsistency of decision-making, and overall unreliability. The \texttt{Highway-Merge Criticals} model, which used a list of previously collected critical states, was showing promising results maintaining a comparable performance while diminishing training time.
+
+Through a deep exploration of data acquired for various metrics, significant insights into the performance and behaviour of \texttt{Highway-Merge Criticals} model were obtained. Understanding the strengths and focus areas of the model was achieved through the detailed analysis of those metrics. This assisted later in the evaluation of the effectiveness.
+
+\texttt{Highway-Merge Criticals} model was able to achieve such performance results by making behaviour adjustments. Unlike the second TL model, the target model decreased the average driving speed(based on Section~\ref{sec:overall_reward_types}) to achieve better results in accident rate and merging speed reward. This capability of criticality TL models to re-evaluate the importance of different types of rewards can further be explored.
+
+After the analysis of results, it is clear that \texttt{Highway-Merge Criticals} model can successfully navigate merging scenarios, being trained on a noticeably smaller set of input states. At the same time, overall results depict minor fluctuations, where the future optimisation of this approach can take place.
 
 % New Section: 
 % -----------------
 \subsection{Future prospects}\label{sec:subsec_5.2}
 
-In the conclusion as the future plans to better an algorithm you can write:
-Playing with hyperparameters of the Replay buffer:
-Earlier works investigating replay buffers have often focused on individual hyperparameters, such as the capacity of the replay buffer (Zhang and Sutton, 2017), which has typically been preserved since the seminal work in this field of Mnih et al. (2013; 2015). We begin by identifying that several such hyperparameters, such as buffer capacity and rate of data throughput, are interlinked in the manner that they affect experience replay, modifying both the amount of data available to an agent and the typical age of that data.
+Future research can be focused on adapting an algorithm to improve the output of TL with the use of critical states. This can include the following points:
+
+\textbf{Exploring Different Ways of Criticality Identification:} This thesis is based on critical states that were found when observing the behaviour of variance of Q-values for possible actions(Section~\ref{sec:criticality}). Evaluate the performance that could have been obtained if using improved or completely different methods to find critical states. For instance, the threshold selection method can be used to identify critical states. This, if refined in future research, may lead to a scharp rise of the effectiveness of criticality approach in TL.
+
+\textbf{Applying Different RL Algorithms:} DQN algorithm was used throughout the paper. However, multiple RL methods exist, besides DQN, which can achieve higher performance results. For example Soft Actor-Critic(SAC) or Proximal Policy Optimisation(PPO).
+
+\textbf{Exploring Different Replay Buffer Setups:} During the training process the pre-filled Replay Buffer was used, where critical experiences were sampled in random batches. To ensure the sampling of all critical states while training the model, it is worth attempting the application of non-random sampling, which will ensure that each critical state is sampled at least once. Moreover, while learning, the DQN did not update the Experience Replay with newly collected samples, leaving the Buffer static. Continuous appending or gradually replacing used critical states with freshly experienced states may avoid overfitting and profit training effectiveness. This leads to the deeper idea of Dynamic Criticality Sampling.
+
+\textbf{Exploring the Dynamic Criticality Sampling:} The additional set of critical states can also be collected while training the model. Appending the Replay Buffer with newly found critical states can further improve the robustness and performance of the model.
+
+\textbf{Scaling to More Complex Environments:} The implementation of a novel TL method was completed in between \emph{Highway-Env} and \emph{Merge-Env}. However, to validate the approach to the level where it can be applied in real-world scenarios, further investigation is required, when applying, explored above, mechanisms in more complex scenarios in the field of autonomous driving.
+
+This paper demonstrates the approach of leveraging criticality for TL being an effective tool to boost RL in autonomous driving. The results of a validation defined a model, trained entirely on critical states, reduces training time while maintaining good effectiveness and securing the safety of the decision-making process. These results contribute to the wider RL field and autonomous vehicles in general, offering insights to be applied in future real-world realisations.
+
+\subsection{Outcome}\label{sec:outcome}
+
+The leveraging of criticality applied in TL demonstrates performance comparable with standard TL while requiring fewer training steps, thus less time and computation power. However, there are still some imperfections in the results and algorithm in general that need to be improved in future research.
+
+When utilising critical states by sampling them from Replay Buffer to improve predictions of Neural Network for Q-values, the model can reach higher levels of safety and efficiency than traditional TL. Current implementation achieved those levels while, at this moment, still being less stable than ordinary TL, this was represented by wider standard deviation values in Figure \ref{fig:rewards_all}. This work shows that the model trained using critical states chooses to sacrifice the reward for higher speed to earn higher rewards for other driving aspects, like collision avoidance, merging speed or right lane occupation. Following prioritisation of rewards in a simulated environment will be reflected in a much safer and more effective behaviour of autonomous vehicles in real-world scenarios. It extracts valuable information from critical scenarios, which is then applied pointwise to train a policy to make more "thoughtful" decisions. Further research into the application of criticality can level up the TL in future, making it more accessible and widely used in various fields of everyday life.

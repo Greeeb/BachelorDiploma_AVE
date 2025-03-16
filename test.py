@@ -1,33 +1,70 @@
-import gymnasium as gym
+import gymnasium
 import numpy as np
-
-import os, tqdm, time, torch, statistics
-
-from Functions import *
+import torch
+import matplotlib.pyplot as plt
+from scipy.signal import argrelextrema
 from stable_baselines3 import DQN
-from scipy.signal import find_peaks  # For detecting peaks
+from Functions import *
 
-# TODO: Always check the iterations 
-iterations = 100000
-seed = 200
-copy_num = 0
-episodes = 10
+# Define the environment
+env = setup_merge_env()  # Ensure this environment is installed and registered
 
-def main(copy=copy_num):
-    copy_num = copy
-    # Setting up the models
-    env = setup_highway_env()
+# Load the trained DQN model
+model_path = "models/model_dqn_100000(2).zip"  # Change to your model's path
+model = DQN.load(model_path)
 
-    # Loading the model
-    model_path = find_model_path(iter=iterations, last=True, copy_num=copy_num, model_type="dqn")
-    model = DQN.load(model_path, env=env)
+# Store criticality values and frames
+criticality_values = []
+frames = []
 
-    for episode in tqdm.tqdm(range(episodes)):
-        while not (done or truncated):
-            action, _ = model.predict(obs, deterministic=True)
-            obs, reward, done, truncated, info = env.step(int(action))
+# Function to compute criticality (Example: variance of Q-values)
+def compute_criticality(q_values):
+    return np.var(q_values)
 
-            env.render()
+# Run the model for 10 episodes
+for episode in range(2):
+    state = env.reset(seed=episode*10)[0]
+    done = False
 
-if __name__=="__main__":
-    main()
+    while not done:
+        # Get Q-values for all actions
+        q_values = model.q_net(torch.tensor(state, dtype=torch.float32).flatten().unsqueeze(0)).tolist()[0]
+        
+        # Compute criticality
+        criticality = compute_criticality(q_values)
+        criticality_values.append(criticality)
+
+        # Render and store frame
+        frames.append(env.render())
+
+        # Select action using the trained policy
+        action, _ = model.predict(state, deterministic=True)
+
+        # Step the environment
+        state, reward, done, _, _ = env.step(action)
+
+env.close()
+
+# Convert criticality values to numpy array
+criticality_values = np.array(criticality_values)
+
+# Find local peaks in criticality
+local_peaks = argrelextrema(criticality_values, np.greater)[0]  # Get indices of local peaks
+
+# Plot criticality values with peaks marked
+plt.figure(figsize=(10, 5))
+plt.plot(criticality_values, label="Criticality Value")
+plt.scatter(local_peaks, criticality_values[local_peaks], color='red', label="Local Peaks")
+plt.xlabel("Time Step")
+plt.ylabel("Criticality")
+plt.title("Criticality Values Over Time")
+plt.legend()
+
+# Show renders at critical peaks
+for peak in local_peaks:
+    plt.figure()
+    plt.imshow(frames[peak])
+    plt.axis("off")
+    plt.title(f"Render at Criticality Peak {peak}")
+    
+plt.show()

@@ -17,7 +17,7 @@ def main(iterations=iterations, copy_num=5, seed=seed):
                     train_freq=1,
                     gradient_steps=1,
                     target_update_interval=500,
-                    device="cuda:1"
+                    #device="cuda:1"
         )
 
     model.learn(iterations, progress_bar=True)
