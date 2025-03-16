@@ -3,110 +3,50 @@
 
 %-----------
 % Section 1: Brief introduction to autonomous driving and it's modules
-\subsection{Autonomous Driving (AD)}\label{sec:subsec_2.1}
-Autonomous driving architecture and AD core functionalities have been thoroughly reviewed in \cite{ad_pipeline}. As shown in figure \ref{fig:ad_architercture}, based on algorithmic design, the AD architecture can be broadly classified into two main categories namely a modular system approach and an end-to-end system approach. 
+\subsection{Criticality}\label{sec:subsec_2.1}
 
-\begin{figure}[!h]
-	\centering
-	\includegraphics[width={0.9\textwidth}]{images/AD_architecture.png}
-	\caption{Autonomous driving architecture: a) Modular system b) End-to-end system \cite{ad_pipeline}}
-	\label{fig:ad_architercture}	
-\end{figure}
+One small branch that can be applied to any type of learning which is not explored deep enough and not widely applied yet is criticality. The criticality has varios ways to be computed when used in reinforcement learning and autonomous driving. Despite that the definition of criticality is general for all the possible implementation fields: the higher vallue of criticality corresponce to the lower value of safety and higher threat level\cite{CriticalityAutonomous2023} in a chosen situation. 
+
+In a field of autonomous driving the knowledge of criticality, especially the ability of the machine to approximate this value, is crusial for the algorithms that are either already used or are still under development. The ability of models that control driving behavior to process the environment, observations and disturbances to evaluate the measure for the threat level of the situation in a real-time can boost the performance and increase the reliability of autonomous driving technologies. 
+
+The policy can be a base to calculate necessary value. The criticality of a state can be accessed throught the comparison of an entropy of the policy's output action distribution captured at a state \texttt{s} with the threshold value. In this method the threshold value \texttt{t} is the one controlling the number of states to be considered "critical"~\cite{huang2018establishingappropriatetrustcritical}: 
+
+\[ 
+C_{\pi} = \{ s \mid \mathcal{H}(\pi(\cdot \mid s)) < t \}
+\]
+
+
+Instead of a policy, in actor-critic methods it can be useful to consider the the action-value funciton(Q-function). Mainly the formula decides if the state is critical according to following condition: if the result produced by the random decision-making process is much worse than the result of acting optimally, then the state is critical.
+
+\[
+C_{\pi} = \{ s \mid \max_{a} Q^{\pi}(s, a) - \frac{1}{|A|} \sum_{a} Q^{\pi}(s, a) > t \}
+\]
+
+
+There are many other numerical methods to define the criticality value to be used in different algorithms and systems, however, for this thesis there was a simpler solution chosen. The reliable indicator of the criticality is a variance of the Q-function~\cite{Spielberg_Azaria_2022}. The higher the variance of the Q-function among all pollible actions in a particular state, the more one action/s is probable to be selected by the trained policy than rest. The state, where the probability of one state/s is reasonably higher than others can then be labeled "critical".
+
+Considering the existing research into different methods of calculation, evaluation or approximation of criticality the target of this bachelor work was chosen not to develop a more complex, optimised or effective technique to measure criticaliy, not at all. Current research tries to go deeper into applications of criticality and, more precisely critical states, in transfer learning. 
 
 %-----------
 % Section 2: 
-\subsection{Section 2}\label{sec:subsec_2.2}
+\subsection{Transfer Learning}\label{sec:subsec_2.2}
 
+Training a machine learning algorithm of an optimal quality and performance requires big sets of training and evaluation data. Those sets are usually hard to gather or generate, as it costs time and money. The approach to be used as a better means of data collection is Transer Learning. The philosophy of this approach is to utilize models trained for tasks related to the target challenge so that the solution does not need to be developed from scratch~\cite{Hosna2022}. Transfer learning tends help the Machine learning to become more universal and adaptive to new tasks as it creates models which own a collection of knowledge of other models. 
 
-% New sub-section:
-% ----------------
-\subsubsection{First sub-section under section 2}\label{ssec:subsubsec_2.2.1}
+The approach of Transfer Learning can easily be found in real life. For instance, in linguistics, if a person has knowledge of one language, it becomes easier for them to learn a new language from the same language group. In the scope of this thesis, transfer learning was performed between two environments: \texttt{Highway-Env} and \texttt{Merge-Env}. 
 
+The necessity and privilege of using Transfer Learning can be seen when applying the approach to tasks related to one another. The autonomous driving task of the agent is to be equally applicable to both environments used throughout the thesis. Moreover, there are some feature sets that those environments share, such as:
+\begin{itemize}
+    \item Operating between multiple lanes,
+    \item Surrounding vehicles capable of accelerating/decelerating and changing lanes.
+\end{itemize}
 
-
-% New sub-section:
-% ----------------
-\subsubsection{Second sub-section under section2}\label{ssec:subsubsec_2.2.2}
-
-
-% New sub-section:
-% ----------------
-\subsubsection{Third sub-section under section 2}\label{ssec:subsubsec_2.2.3}
-
-
-
-%-----------
-% Section 3: 
-\subsection{Section 3}\label{sec:subsec_2.3}
-
-
-
-%-----------
-% Section 4: 
-\subsection{Section 4}\label{sec:subsec_2.4}
-
+Looking into the scientific field, an analogy can represent the exact approach of Transfer Learning: studying math and physics. If a person who studied math starts deepening their knowledge in physics, this can be called Transfer Learning, as the math expertise makes it easier to acquire new knowledge in the field of physics. However, some themes in math will not be required while learning physics. Compared to the learning process without prior math knowledge, the time and effort investments are noticeably less when Transfer Learning is applied.
 
 % New sub-section:
 % ----------------
-\subsubsection{Uncertainty literature}\label{ssec:subsubsec_2.4.4}
-By using equation \eqref{eqn:Gaussian processes} and equation \eqref{eqn:KL divergence} we can reference equations.
-
-% Sample equation 1:
-\def\A{
-\begin{bmatrix}
-   f(x_{1}) \\
-   f(x_{2}) \\
-   \vdots \\
-   f(x_{m})
-\end{bmatrix}
-}
-
-\def\B{
-\begin{bmatrix}
-    m(x_{1})\\
-    m(x_{2}\\
-    \vdots \\
-    m(x_{m})
-\end{bmatrix}
-}
-
-\def\C{
-\begin{bmatrix}
-    C(x_{1},x_{1}) \hdots C(x_{1},x_{m})\\
-    C(x_{2},x_{1}) \hdots C(x_{2},x_{m})\\
-    \vdots \\
-    C(x_{m},x_{1}) \hdots C(x_{m},x_{m})
-\end{bmatrix}
-}
-\begin{equation}\label{eqn:Gaussian processes}
-    \A = \mathcal{N} \left(\B, \C\right)
-\end{equation}
-
-% Sample equation 2:
-\begin{equation}\label{eqn:KL divergence}
-    D_{KL}\{q_{\theta}(\theta) || p(\theta | X, Y)\} = \int q_{\theta}(\theta) \log \frac{q_{\theta}(\theta)}{p(\theta | X, Y)} d\theta
-\end{equation}
+\subsubsection{Q-Learning}\label{ssec:subsubsec_2.2.1}
 
 
-%-----------
-% Section 5: 
-\subsection{Datasets}\label{sec:subsec_2.7}
-By using table \ref{tbl:dataset}, we can reference tables.
 
-% Sample table:
-\begin{center}
-\begin{tabular}{||c | c | c | c | c | c | c | c||} 
- \hline
- \thead{Dataset} & \thead{Scenes} & \thead{Sensors} & \thead{Anns.} & \thead{Map} & \thead{Rain/Night} & \thead{Classes} \\ [0.5ex]
- \hline\hline
- KITTI & 22 & Camera, LiDAR & 15,000 & No & No/No & 8\\ 
- \hline
- Waymo & 1150 & Camera, LiDAR & 200,000 & No & Yes/Yes & 4\\
- \hline
- nuScenes & 1000 & Camera, LiDAR, RADAR & 40,000 & Yes & Yes/Yes & 23\\ [1ex]
- \hline
-\end{tabular}
-\captionof{table}{Dataset comparison}
-\label{tbl:dataset}
-\end{center}
 

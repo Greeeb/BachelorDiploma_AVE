@@ -1,2 +1,122 @@
 % Chapter 3 - Method
 \section{Method}\label{chap:chap_3}
+
+The methodology chapter outlines the approaches and tools used in this bachelor thesis. The primary objective of the study is to leverage the criticality in RL with the use of Deep Q-Networks (DQN) to obtain effective transfer learning in conjunction with \texttt{Highway-Env} and \texttt{Merge-Env} environments. For development and implementation purposes of the RL agent, which will be capable of navigating and interacting with the given environment, the \texttt{Stable-Baselines3} framework was used.
+
+\subsection{Environments: Highway-Env and Merge-Env}
+
+The operation of the reinforcement learning agents in this thesis is realised within two environments: \texttt{Highway-Env}~\cite{highway-env} and \texttt{Merge-Env}. Those are realistic yet controlled simulations of autonomous driving tasks, that provide a setting for evaluating RL algorithms in various driving scenarios. Both environments model traffic behaviour, including surrounding vehicles and multiple lanes, allowing the agent to navigate dynamically and interact with nearby traffic. The environment gives a reward depending on the RL agent's behaviour on a highway; the agent has to avoid crashes while optimizing its speed and lane position.
+
+Another environment was used to imply transfer learning: \texttt{Merge-Env}. This is a modification of the \texttt{Highway-Env}, where the focus is shifted to merging scenarios between vehicles from on-ramps with the highway traffic. There, the goal of the agent is to make decisions towards ensuring smooth and crashless merging by adjusting the speed and judging traffic gaps, which creates more challenging driving scenarios to overcome. With \texttt{Merge-Env}, the controlled vehicle experiences an environment which mostly obeys the rules of \texttt{Highway-Env}, but also includes different observations and complexities caused by vehicles from incoming lanes.
+
+Selected environments are implemented based on the Gymnasium API, which is compatible with existing libraries of reinforcement learning implementations like \texttt{Stable-Baselines3}.
+
+\subsubsection{Action Space}\label{ssec:subsubsec_3.1.1}
+
+Action Space defines possible actions to be considered in training, decision-making and 
+The \texttt{Highway-Env} and \texttt{Merge-Env} are implementations where the action space can be chosen to be either Discrete, Continuous, or Discrete Meta-Actions. The continuous action space in these environments means mainly that velocity and steering angle of the agent can take arbitrary values in a predefined range. By controlling velocity and steering angle values, lane change, braking, overtaking, and other actions can be realized throughout the simulated traffic. However, the variety of actions makes the training and decision-making process more complex as the agent can leave the borders of the simulated highway. 
+
+The discrete action space is a quantized continuous space, which is represented as a uniformly distributed grid of possible values for throttle and steering angle. Despite the size of the action space being gradually decreased compared to the continuous space, there is a third, simplest controlling action space to be used for this thesis: the Discrete Meta-Actions space. 
+
+The Discrete Meta-Action space consists of 5 predefined actions which can replace the continuous action space. These actions are a tolerable replacement of continuous and discrete actions, which make the action space smaller and cover the most demanding actions of the agent. The available actions are~\cite{highwayenv2025}:
+
+\begin{itemize}
+    \item \texttt{IDLE} -- the velocity and steering angle are not adapted compared to the previous state;
+    \item \texttt{LANE\_LEFT} -- the velocity value is saved unchanged, while the agent steers the vehicle to the left, changing the lane completely. In case the agent occupies the far-left lane, this action is not included in the possible action space; if the action is taken despite being unavailable, the \texttt{IDLE} action is performed;
+    \item \texttt{LANE\_RIGHT} -- the velocity value is saved unchanged, while the agent steers the vehicle to the right, changing the lane completely. In case the agent occupies the far-right lane, this action is not included in the possible action space; if the action is taken despite being unavailable, the \texttt{IDLE} action is performed;
+    \item \texttt{FASTER} -- the steering angle remains unchanged, while velocity is increased;
+    \item \texttt{SLOWER} -- the steering angle remains unchanged, while velocity is decreased.
+\end{itemize}
+
+\subsection{Stable-Baselines3}
+
+The \texttt{Stable-Baselines3} (SB3) is a library that includes some of the most popular, efficient and reliable reinforcement learning algorithms, that can be easily applied and used for different environment types like \texttt{Highway-Env} and \texttt{Merge-Env}. The list of implemented algorithms consists of Proximal Policy Optimization (PPO), Soft-Actor-Critic (SAC), and the algorithm that was used in this paper, Deep Q-Network (DQN). The privilege of the SB3 is the simplicity of the Application Programming Interface (API), built on top of PyTorch, providing the ease of use of implemented models, requiring only a few lines of code to initialise, train and utilise the RL, which will be able to control the agent based on the learned policy~\cite{raffin2021stable}. Moreover, the developed API is not a black-box structure, but has open code, clear user guides and a huge number of active users that published struggles and solutions online, which was crucial during the implication of criticality throughout this thesis paper.
+
+\subsection{Deep Q-Network (DQN)}
+
+The Reinforcement Learning algorithm used is Deep Q-Network (DQN). This algorithm combines the properties of "reinforcement learning with a class of artificial neural networks"~\cite{mnih2015human}. Following the combination of different reinforcement learning approaches makes it possible for the DQN to handle environments with large state spaces, where the autonomous driving task is one example of such. The interaction with the environment is the main source of experience for the agent to learn an optimal policy. This algorithm was originally developed by Mnih et al.~\cite{mnih2015human}, where they introduced it as a method to address the reinforcement learning challenges with high-dimensional state spaces through the use of deep learning, especially to estimate the Q-function throughout the learning process.
+
+The core idea behind DQN is the process of the approximation of the Q-function based on the outputs of the deep neural network, giving an estimated reward based on the given current state and the action performed by the agent in this state. This algorithm performs self-education based on the gained experience and tries to maximize the cumulative rewards by making decisions optimizing its actions. Additionally, there is a feature introduced with the DQN---the replay buffer, which played a crucial role in the implementation of the criticality in my thesis. The replay buffer offers the opportunity to store past experiences in the following form: firstly, the observations of the current state are saved; then the action that was taken by the policy based on the observation of the state; and finally, rewards that were obtained as a result of the action taken in the current state, followed by the observations of the resultant state. With the use of this feature, the experience can be not only saved but also replayed. This innovation assists during the process of approximation of the Q-values, mitigating the issues of overestimation of those, and helping agents to maintain effective and efficient learning in complex environments.
+
+In this study, the DQN algorithm was used to train the agent in \texttt{Highway-Env}~\cite{highway-env} and \texttt{Merge-Env} environments for it to be able to navigate the highway autonomously, maximizing rewards and minimizing penalties, for example, due to collisions. To optimize the training process and to reach better performance, some parameters of the DQN policy were tuned. For instance, hyperparameters, including the learning rate and exploration rate. The exploration rate shows the fraction of the actions where the exploration epsilon-greedy policy will be applied~\cite{tokic2011adaptive}. This means if the exploration rate is $p$ (taking the values from 0 to 1), during $100 \cdot p$ percent of the training iterations ($N$), the following behavior of decision making will occur: in iteration 1, actions will be taken randomly in 100\% of steps; further, up until iteration $N \cdot p$, the proportion of actions taken randomly, not depending on the learned policy, will decrease proportionally, and at the point of iteration $N \cdot p$ it will reach 0\%. The efficacy of exploration (random actions) compared to exploitation (following the learned policy) is extremely high at the beginning of the training, where the policy does not act effectively, and exploration helps in gaining various experiences.
+
+The learning rate is another key hyperparameter that determines the training performance of a Deep Q-learning (DQN) model. It defines how much the model parameters are changed during the update after each training step. In the DQN algorithm, the learning rate controls the magnitude of adjustments of the neural network weight, based on gradient descent. During training, the weight update is performed according to the following rule:
+\[
+\theta \leftarrow \theta - \alpha \nabla_\theta \mathcal{L}(\theta)
+\]
+where:
+\begin{itemize}
+    \item $\alpha$ is the learning rate,
+    \item $\mathcal{L}(\theta)$ is the loss function (e.g., mean squared error).
+\end{itemize}
+
+Training becomes unstable if the learning rate is too high ($\alpha$ is large) because the model weights change too much, which can lead to oscillations or divergence. If the learning rate is too low ($\alpha$ is small), the learning process becomes slow and the model can get stuck in local minima or take excessive time to reach an acceptable level of performance. In the context of the thesis, using a correct learning rate in the DQN algorithm allows the agent to effectively learn complex scenarios such as highway driving or merging manoeuvres, minimizing errors and providing high-quality results.
+
+\subsection{Transfer Learning}
+
+The base model for knowledge transfer was trained on the \texttt{Highway-Env}. While training the model, the agent was taught to:
+\begin{itemize}
+    \item Maintain a safe distance from the vehicle in front,
+    \item Assess the possibility of performing a lane change,
+    \item Execute lane change maneuvers,
+    \item Accelerate or decelerate to maneuver in traffic and receive corresponding rewards,
+    \item Behave in traffic to maximize rewards under particular conditions.
+\end{itemize}
+
+The obtained model had "experience" on the highway but none in merge scenarios. Despite this, the model could make decisions based on previous knowledge, handle operations in pre- and post-merge scenarios at a good level, and avoid collisions during merging, whether by chance or through learned behavior. 
+
+The target was, however, to obtain a policy that would operate the agent inside \texttt{Merge-Env} efficiently enough for the policy to be called safe. This could have been achieved via direct learning, following the same path as with the highway. While this approach would not require additional implementations, it would be as expensive and time-consuming as training the first model. Since this thesis uses environments that roughly simulate real-life scenarios, the scale of research into reinforcement learning allowed experiments like training the model purely on \texttt{Merge-Env} for comparison purposes. In real-life cases, however, such experiments are impossible on a larger scale, which highlights the effectiveness of Transfer Learning.
+
+One approach is to use the pre-trained model for straightforward but less intensive learning. Instead of starting with an empty policy, the policy trained for the highway task is used as the initial policy state for the training process in merging. Because reinforcement learning recursively uses the policy's experience and knowledge, inputting the trained model into the DQN accelerates the model’s learning process. Therefore, the second model was trained on \texttt{Merge-Env} using 10 times fewer iterations than the initial highway model. This resulted in a model to be validated in future work.
+
+Reducing the number of iterations due to the "experienced" input model provides cost and time advantages. However, the training data used during DQN learning is still random. The approach explored throughout this thesis is to organize the training data more effectively. For this purpose, criticality principles will be used.
+
+\subsection{Criticality}
+
+The decision making process is highly power consuming for people, because different actions taken in the particular situation could lead to drastically diverging results. Identical principle is to be considered for the decision making performed by the machine. Exceptional meaning to wrongly taken actions should be taken into account during the autonomous driving. Decisions taken by the autonomous vehicle are in the end to be brought to real road scenarios, where lifes of drivers, passengers and other traffic participants are of exceptional value. Thus, a special attention is to be payed to pollible dangerous situation that might occure in varios driving scenarios. 
+
+Unfortunately, it is impossible to create a list of all potential situations that can be considered to be unsafe. However there is one approach that can help machine to identify if the state is dangerous, more precisely if any of available actions in the given state can lead to critical situation. The states where one or some of possible actions lead to such situations is to be called critical state~\cite{criticality2019}. For example, the state shown in the figure \ref{fig:ad_architercture} can be called critical as ...
+
+
+!!!!!!!!!!!!!!Insert the Figure of the critical state example!!! and explain till the end why this state is called critivcal and which actions will be called critical actions in this scenario!!!
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width={0.9\textwidth}]{images/AD_architecture.png}
+	\caption{Autonomous driving architecture: a) Modular system b) End-to-end system \cite{ad_pipeline}}
+	\label{fig:ad_architercture}	
+\end{figure}
+
+
+The crusial role in decision making is played by action-values(Q-values). For a given state of the environment each of possible actions has its own Q-value that was calculated through accumulating the possible prospected reward to be received if the action is taken. The calculations are performed according to the following formula~\cite{xue2023dvqn}:
+
+\[
+Q_\pi(s, a) = \mathbb{E}_\pi \left[ \sum_{k=0}^\infty \gamma^k R_{t+k+1} \mid S_t = s, A_t = a, \pi \right]
+\]
+
+In DQN the approximation of the action-value for every action is performed by the neural network. Then the policy performs the action which has the highest Q-value, according to \[Q^*(s, a) = \max_\pi Q_\pi(s, a)\]. 
+
+To leverage the criticality in transfer learning there was a complex procedure performed. The base-model, trained purely on the  \texttt{Highway-Env}, was applied to perform "testdrives" in the \texttt{Merge-Env} to collect necessary data for the future applications of transfer learning. The most important data to be collected for criticality purposes was: obserations of all the completed steps through out episodes. The model is able to give the Q-net of the observation out, which represents the Q-values for each of 5 possible actions. Based on the maximum action-value among those in Q-net, as described earlier, the algorythm was making decisions about which action to perform for a given observation. However, now, the Q-net was used in a different way: there was a statistical value of variance\cite{Karino_2020,} of Q-values found for the purpose of criticality. The variance is calculated by averaging squares of deviations from the distribution mean~\cite{variance2018}:
+
+\[
+\sigma^2 = \frac{\sum (X - \mu)^2}{N}
+\]
+
+The purpose of calculating the variance is to find the deviation of values inside of a Q-net, mainly to identify if one of action-values was reasonably higher than all others. Higher variance represents that one of actions was much likely to be taken by the policy than others. The Q-net variances of all the observations recorded should have been further analysed, ...
+
+!!!Describe the python package to find the variance and also describe the python package and the whole method how local peaks were found !!!!
+
+Now when observations of critical states are collected, the next goal is to use them for transfer learning of the initial Highway policy. The ordinary DQN policy is trained in the way, when the desired number of training epochs the algorithm uses initial states of the system. Those are fed into the algorithm, and based on them the policy is trained. It either explores or exploits the initial state and the following states triggered by the action taken by the existing policy. Based on this experience the agent is trained to perform the decision making in favor of one action in every given state, thus maximising rewards and, by that, the driving performance. However the crusial point of initial states ampling for the training is that this is done randomly. Meaning every initial state of the system is randomly generated: the lane of the agent, positions of surrounding vehicles, its' velocities and the velocity of agent car, everything is initialised randomly in every iteration.
+
+The theory of this bachelor paper is, instead of set of randomised states, to feed the DQN algorithm with a set of critical states of a smaller lenth and evaluate if the acceptable performance can be acheived via this method. The set of input states is generated by the DQN interrnally. This is performed by the Replay Buffer.
+
+\subsection{Replay Buffer}
+
+As critical states are collected, the next processing step is feeding this set into the algorithm for purposes of transfer learning. The target is to control the input of the DQN by replacing random state samples with a list of critical states. This was realised with the use of an in-built component of DQN called Replay Buffer(or Experience Replay).
+
+The whole idea behind the principle of experience replay is grounded in neuroscience. Observing and exploring rodents, scientists suggest that the brain replays sequences of prior experience during its sleeping and awake resting phases~\cite{Foster2006}. Based on this knowledge DQN was extended by the replay buffer, where the design is following: experience, completed once will not be erased after one iteration, but on the contrary will be stored inside of the replay buffer to be reapplied later~\cite{schaul2016prioritizedexperiencereplay}. Moreover, it becomes more probable for the rare-appearing experience samples to be learned multiple times. Utilising a mix of recent and older experience stabilises the training process.
+
+Google DeepMind's "Prioritized Experience Replay" research towards the optimisation of the usage of replay buffer in the DQN served as an inspiration for implementation within this thesis. The paper explores one possible improvement of a general replay buffer realisation, where the DQN will utilise the set of random states in a manner, where some states will be prioritized over others. The purpose of the research is brilliantly described in one sentence: "This paper addresses only the latter: making the most effective use of the replay memory for learning, assuming that its contents are outside of our control." ~\cite{schaul2016prioritizedexperiencereplay} After digging into the prioritised replay approach, the concept of overwriting the replay buffer data came to mind. Generally, the intention, that was pursued during the development of the replay buffer, is to reduce the amount of experience required for effective learning. At the same time, we will try to take a full control of the experience set and reduce it even further.
+
+A list of observations is not enough information, which is required to create a working buffer. Additionally, actions taken under the conditions of the state, the received reward and the resultant observations are required. To obtain the following data, the pre-trained highway model was used, which is the same model that collected critical states. Before the start of transfer model training process, the experience buffer is filled with all necessary values and connected to a system to be employed by the DQN algorithm.
+
