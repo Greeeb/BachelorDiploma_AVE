@@ -95,7 +95,4 @@ Contributions are welcome! If you’d like to contribute:
 
 A special thanks to my advisor and colleagues for their support and guidance throughout this project.
 
----
-
 Made with ❤️ for autonomous driving research.
-```
