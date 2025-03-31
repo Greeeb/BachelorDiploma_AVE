@@ -58,9 +58,19 @@ For training in the **merging environment**, run:
 python trainMergeEnvDQN.py
 ```
 
+For accessing the performance in the **merging environment**, run:
+```bash
+python accessModelMerge.py
+```
+
+For training in the **merging environment** with criticality transfer learning, run:
+```bash
+python trainMergeEnvCriticalsDQN.py
+```
+
 After training, visualize the results using:
 ```bash
-python visualiseResultsHighway.py
+python visualiseResultsMerge.py
 ```
 
 ## 📊 Results
