@@ -1,0 +1,13 @@
+numpy
+matplotlib
+pandas
+scipy
+torch
+torchvision
+torchaudio
+gym
+gymnasium
+highway-env
+stable-baselines3
+tensorboard
+opencv-python
