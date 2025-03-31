@@ -1,6 +1,3 @@
-Sure! Here's the README in proper GitHub markdown format:  
-
-```markdown
 # Leveraging Criticality in Reinforcement Learning for Effective Transfer Learning in Autonomous Driving
 
 This repository contains the code and resources for my bachelor's thesis titled **"Leveraging Criticality in Reinforcement Learning for Effective Transfer Learning in Autonomous Driving."**
@@ -11,7 +8,6 @@ This project explores methods to enhance transfer learning in autonomous driving
 
 ## 📁 Repository Structure
 
-```
 BachelorDiploma_AVE/
 │── .vscode/                # VS Code configuration files
 │── Figures/                # Figures used in the thesis
@@ -25,7 +21,6 @@ BachelorDiploma_AVE/
 │── visualiseResultsHighway.py # Visualization script
 │── requirements.txt        # List of dependencies
 │── README.md               # Project documentation
-```
 
 ## 🚀 Getting Started
 
@@ -83,9 +78,6 @@ Contributions are welcome! If you’d like to contribute:
 4. **Push to the branch** (`git push origin feature-branch`).
 5. **Submit a pull request**.
 
-## 📜 License
-
-This project is licensed under the **MIT License**. See the `LICENSE` file for details.
 
 ## 🙌 Acknowledgments
 
