@@ -8,19 +8,21 @@ This project explores methods to enhance transfer learning in autonomous driving
 
 ## 📁 Repository Structure
 
+```
 BachelorDiploma_AVE/
-│── .vscode/                # VS Code configuration files
-│── Figures/                # Figures used in the thesis
-│── models/                 # Pre-trained models and checkpoints
-│── rlkit/                  # Reinforcement learning implementation
-│── saveResults/            # Experiment results
-│── Functions.py            # Utility functions
-│── executor.py             # Main script to execute training
-│── trainHighwayEnvDQN.py   # Training script for the highway environment
-│── trainMergeEnvDQN.py     # Training script for the merging environment
-│── visualiseResultsHighway.py # Visualization script
-│── requirements.txt        # List of dependencies
-│── README.md               # Project documentation
+   ── .vscode/                # VS Code configuration files
+   ── Figures/                # Figures used in the thesis
+   ── models/                 # Pre-trained models and checkpoints
+   ── rlkit/                  # Reinforcement learning implementation
+   ── saveResults/            # Experiment results
+   ── Functions.py            # Utility functions
+   ── executor.py             # Main script to execute training
+   ── trainHighwayEnvDQN.py   # Training script for the highway environment
+   ── trainMergeEnvDQN.py     # Training script for the merging environment
+   ── visualiseResultsHighway.py # Visualization script
+   ── requirements.txt        # List of dependencies
+   ── README.md               # Project documentation
+```
 
 ## 🚀 Getting Started
 
